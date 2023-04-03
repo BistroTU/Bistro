@@ -6,7 +6,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class RestaurantRequestBuilder {
+class RestaurantSearchBuilder {
 
     private val optionsMap = mutableMapOf(
         Pair("device_platform", "android"),
