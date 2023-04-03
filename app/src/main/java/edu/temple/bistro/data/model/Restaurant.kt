@@ -34,7 +34,11 @@ data class Restaurant (
     @ColumnInfo(name = "display_phone")
     @SerializedName("display_phone")
     val displayPhone: String,
-    val distance: Float
+    var distance: Float,
+    val photos: List<String>?,
+    val hours: List<Hours>?,
+    // This isn't part of the Yelp API
+    var userSeen: Boolean = false
 )
 
 data class Coordinates (
@@ -64,4 +68,20 @@ data class Category (
     @PrimaryKey
     val alias: String,
     val title: String
+)
+
+data class Hours (
+    @SerializedName("hour_type")
+    val hourType: String,
+    val open: List<OpenHours>,
+    @SerializedName("is_open_now")
+    val isOpenNow: Boolean,
+)
+
+data class OpenHours (
+    val day: Int,
+    val start: String,
+    val end: String,
+    @SerializedName("is_overnight")
+    val isOvernight: Boolean
 )
