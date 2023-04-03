@@ -1,7 +1,9 @@
 package edu.temple.bistro.data
 
 import android.util.Log
+import edu.temple.bistro.data.api.RestaurantSearchBuilder
 import edu.temple.bistro.data.api.YelpService
+import edu.temple.bistro.data.model.Category
 import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.data.model.RestaurantCategoryReference
 import edu.temple.bistro.data.model.RestaurantSearchResponse
@@ -55,19 +57,12 @@ class YelpRepository(private val database: YelpDatabase) {
     }
     suspend fun fetchRestaurants() {
         withContext(Dispatchers.IO) {
-            val optionsMap = mutableMapOf(
-                Pair("latitude", "39.977730"),
-                Pair("longitude", "-75.156400"),
-                Pair("categories", "bars"),
-                Pair("device_platform", "android"),
-                Pair("limit", "20")
-            )
-            val call = yelpService.searchRestaurants(optionsMap)
-            call.enqueue(object : Callback<RestaurantSearchResponse> {
-                override fun onResponse(
-                    call: Call<RestaurantSearchResponse>,
-                    response: Response<RestaurantSearchResponse>
-                ) {
+            RestaurantSearchBuilder()
+                .setLatitude(39.977730)
+                .setLongitude(-75.156400)
+                .addCategory(Category("bars", "Bars"))
+                .setLimit(20)
+                .addSuccessCallback { response ->
                     if (response.isSuccessful) {
                         Log.d(this@YelpRepository::class.simpleName, response.body().toString())
                         defaultScope.launch {
@@ -83,15 +78,13 @@ class YelpRepository(private val database: YelpDatabase) {
                         }
                     }
                     else {
-                        Log.d(this@YelpRepository::class.simpleName, "API Unsuccessful")
+                        Log.d(this@YelpRepository::class.simpleName, "API Unsuccessful ${response.errorBody()?.string()}")
                     }
                 }
-
-                override fun onFailure(call: Call<RestaurantSearchResponse>, t: Throwable) {
-                    Log.d(this@YelpRepository::class.simpleName, "API Fail: ${t.message}")
+                .addFailureCallback {
+                    Log.d(this@YelpRepository::class.simpleName, "API Fail: ${it.message}")
                 }
-
-            })
+                .call(yelpService)
         }
     }
 
