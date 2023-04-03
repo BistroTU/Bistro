@@ -1,6 +1,7 @@
 package edu.temple.bistro.data
 
 import android.util.Log
+import edu.temple.bistro.data.api.YelpService
 import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.data.model.RestaurantCategoryReference
 import edu.temple.bistro.data.model.RestaurantSearchResponse
