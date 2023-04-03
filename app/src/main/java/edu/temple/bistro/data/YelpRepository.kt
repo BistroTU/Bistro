@@ -1,28 +1,21 @@
 package edu.temple.bistro.data
 
 import android.util.Log
+import edu.temple.bistro.BuildConfig
 import edu.temple.bistro.data.api.RestaurantSearchBuilder
 import edu.temple.bistro.data.api.YelpService
 import edu.temple.bistro.data.model.Category
 import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.data.model.RestaurantCategoryReference
-import edu.temple.bistro.data.model.RestaurantSearchResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class YelpRepository(private val database: YelpDatabase) {
-
-    companion object {
-        val API_TOKEN = "uXCBcUZJU7th_HYlcApVyqe8IFe1DegdYhrVXg_5vINo2_hne8G3s3xoPBUCmhIn0BawkhC9kraEemOZCLFK3pS2gN7Kx0CQK4CmUuI6d9J2O3WTMyluhA06GwMeZHYx"
-    }
 
     private lateinit var httpClient: OkHttpClient
     private lateinit var retrofit: Retrofit
@@ -38,7 +31,7 @@ class YelpRepository(private val database: YelpDatabase) {
             if (!this@YelpRepository::httpClient.isInitialized) {
                 httpClient = OkHttpClient.Builder().addInterceptor {
                     val req = it.request().newBuilder()
-                        .addHeader("Authorization", "Bearer $API_TOKEN")
+                        .addHeader("Authorization", "Bearer ${BuildConfig.YELP_TOKEN}")
                         .build()
                     it.proceed(req)
                 }.build()
