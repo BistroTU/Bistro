@@ -1,35 +1,36 @@
 {
   "users": {
-    "$userId": {
+    "$uid": {
       "first_name": "string",
       "last_name": "string",
       "username": "string",
       "idToken": "string",
       "age_over_21": "boolean",
       "profile_picture": "string",
+      "friends": {
+        "$friend_uid": {
+          "name": "string",
+          "friend_status": "string"
+        }
+      },
       "filter_criteria": {
         "min_rating": "number",
         "price_level": "number",
         "max_distance": "number",
         "categories": {
-          "restaurant": "boolean",
-          "cafe": "boolean",
-          "bar": "boolean"
+          "$category": "boolean"
         }
       },
       "liked_places": {
-        "$placeId": {
+        "$place_id": {
+          "name": "string",
           "timestamp": "number"
         }
       },
       "disliked_places": {
-        "$placeId": {
+        "$place_id": {
+          "name": "string",
           "timestamp": "number"
-        }
-      },
-      "friends": {
-        "$friendUserId": {
-          "friend_status": "string"
         }
       }
     }

@@ -89,16 +89,16 @@ class MainActivity : ComponentActivity() {
                 )
             ),
             mapOf(
-                "place1" to Place(System.currentTimeMillis()),
-                "place2" to Place(System.currentTimeMillis())
+                "placeid1" to Place("place1", System.currentTimeMillis()),
+                "placeid2" to Place("place2", System.currentTimeMillis())
             ),
             mapOf(
-                "place3" to Place(System.currentTimeMillis()),
-                "place4" to Place(System.currentTimeMillis())
+                "placeid3" to Place("place3", System.currentTimeMillis()),
+                "placeid4" to Place("place4", System.currentTimeMillis())
             ),
             mapOf(
-                "friend1" to Friend("accepted"),
-                "friend2" to Friend("pending")
+                "friendid1" to Friend("Jane Doe","accepted"),
+                "friendid2" to Friend("Janice Joe","pending")
             )
         )
         usersRef.child(userId).setValue(user)
