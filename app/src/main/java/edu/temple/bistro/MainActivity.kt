@@ -69,9 +69,41 @@ class MainActivity : ComponentActivity() {
 
     private fun dbTest() {
         val database = Firebase.database
-        val myRef = database.getReference("message")
+        val usersRef = database.getReference("users")
+        val userId = "some_user_id"
+        val user = User(
+            "John",
+            "Doe",
+            "johndoe",
+            "some_id_token",
+            true,
+            "https://some.url/profile_picture.jpg",
+            FilterCriteria(
+                4.5,
+                2,
+                10,
+                mapOf(
+                    "restaurant" to true,
+                    "cafe" to true,
+                    "bar" to false
+                )
+            ),
+            mapOf(
+                "place1" to Place(System.currentTimeMillis()),
+                "place2" to Place(System.currentTimeMillis())
+            ),
+            mapOf(
+                "place3" to Place(System.currentTimeMillis()),
+                "place4" to Place(System.currentTimeMillis())
+            ),
+            mapOf(
+                "friend1" to Friend("accepted"),
+                "friend2" to Friend("pending")
+            )
+        )
+        usersRef.child(userId).setValue(user)
 
-        myRef.addValueEventListener(object: ValueEventListener {
+        usersRef.addValueEventListener(object: ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
                 // This method is called once with the initial value and again
@@ -83,8 +115,6 @@ class MainActivity : ComponentActivity() {
             override fun onCancelled(error: DatabaseError) {}
 
         })
-        myRef.setValue("BistroDB up and running!")
-        Log.d("STATUS: ", "sent to db")
     }
 
     @SuppressLint("MissingPermission")
