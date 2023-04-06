@@ -12,7 +12,7 @@ class RestaurantSearchBuilder {
         Pair("device_platform", "android"),
         Pair("limit", "20")
     )
-    private val categoryList = mutableListOf<Category>()
+    private val categorySet = mutableSetOf<Category>()
     private val priceSet = mutableSetOf<Int>()
     private val successCallbacks = mutableListOf<(Response<RestaurantSearchResponse>) -> Unit>()
     private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
@@ -30,11 +30,11 @@ class RestaurantSearchBuilder {
     }
 
     fun addCategory(value: Category) = apply {
-        categoryList.add(value)
+        categorySet.add(value)
     }
 
     fun addCategories(value: Collection<Category>) = apply {
-        categoryList.addAll(value)
+        categorySet.addAll(value)
     }
 
     fun addPrice(value: Int) = apply {
@@ -43,8 +43,16 @@ class RestaurantSearchBuilder {
         }
     }
 
+    fun addPrice(value: String) = apply {
+        addPrice(value.length)
+    }
+
     fun addPrices(value: Collection<Int>) = apply {
         priceSet.addAll(value.filter { (it >= 1) && (it <= 4) })
+    }
+
+    fun addPrices(value: Collection<String>) = apply {
+        addPrices(value.map { it.length })
     }
 
     fun setOpenNow(value: Boolean) = apply {
@@ -64,7 +72,7 @@ class RestaurantSearchBuilder {
     }
 
     fun call(yelpService: YelpService) = apply {
-        if (categoryList.size > 0) optionsMap["categories"] = categoryList.joinToString { it.alias }
+        if (categorySet.size > 0) optionsMap["categories"] = categorySet.joinToString { it.alias }
         if (priceSet.size > 0) optionsMap["price"] = priceSet.joinToString()
         yelpService.searchRestaurants(optionsMap)
             .enqueue(object : Callback<RestaurantSearchResponse> {
