@@ -1,0 +1,38 @@
+{
+  "users": {
+    "$uid": {
+      "first_name": "string",
+      "last_name": "string",
+      "username": "string",
+      "idToken": "string",
+      "age_over_21": "boolean",
+      "profile_picture": "string",
+      "friends": {
+        "$friend_uid": {
+          "name": "string",
+          "friend_status": "string"
+        }
+      },
+      "filter_criteria": {
+        "min_rating": "number",
+        "price_level": "number",
+        "max_distance": "number",
+        "categories": {
+          "$category": "boolean"
+        }
+      },
+      "liked_places": {
+        "$place_id": {
+          "name": "string",
+          "timestamp": "number"
+        }
+      },
+      "disliked_places": {
+        "$place_id": {
+          "name": "string",
+          "timestamp": "number"
+        }
+      }
+    }
+  }
+}
