@@ -63,6 +63,10 @@ class RestaurantSearchBuilder {
         optionsMap["limit"] = value.toString()
     }
 
+    fun setOffset(value: Int) = apply {
+        optionsMap["offset"] = value.toString()
+    }
+
     fun addSuccessCallback(callback: (Response<RestaurantSearchResponse>) -> Unit) = apply {
         successCallbacks.add(callback)
     }
