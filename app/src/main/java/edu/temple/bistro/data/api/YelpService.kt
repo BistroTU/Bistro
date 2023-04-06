@@ -13,7 +13,7 @@ interface YelpService {
 
     @GET("businesses/{id}")
     fun getRestaurantDetail(
-        @QueryMap options: Map<String, String>,
-        @Path("id") id: String
+        @Path("id") id: String,
+        @QueryMap options: Map<String, String>?
     ): Call<Restaurant>
 }

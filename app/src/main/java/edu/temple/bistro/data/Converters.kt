@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import edu.temple.bistro.data.model.Category
 import com.google.gson.Gson
 import edu.temple.bistro.data.model.Hours
+import edu.temple.bistro.data.model.OpenHours
 
 class Converters {
     @TypeConverter
@@ -43,6 +44,20 @@ class Converters {
     fun hoursListFromJSON(value: String?): List<Hours>? {
         return value?.let {
             Gson().fromJson(it, Array<Hours>::class.java).toList()
+        }
+    }
+
+    @TypeConverter
+    fun openHoursListToJSON(list: List<OpenHours>?): String? {
+        return list?.let {
+            Gson().toJson(it)
+        }
+    }
+
+    @TypeConverter
+    fun openHoursListFromJSON(value: String?): List<OpenHours>? {
+        return value?.let {
+            Gson().fromJson(it, Array<OpenHours>::class.java).toList()
         }
     }
 }

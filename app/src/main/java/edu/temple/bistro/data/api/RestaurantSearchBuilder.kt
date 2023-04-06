@@ -2,16 +2,23 @@ package edu.temple.bistro.data.api
 
 import edu.temple.bistro.data.model.Category
 import edu.temple.bistro.data.model.RestaurantSearchResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class RestaurantSearchBuilder {
+class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
 
     private val optionsMap = mutableMapOf(
         Pair("device_platform", "android"),
         Pair("limit", "20")
     )
+
+    init {
+        builder?.let { optionsMap.putAll(it.optionsMap) }
+    }
+
     private val categorySet = mutableSetOf<Category>()
     private val priceSet = mutableSetOf<Int>()
     private val successCallbacks = mutableListOf<(Response<RestaurantSearchResponse>) -> Unit>()
@@ -43,7 +50,7 @@ class RestaurantSearchBuilder {
         }
     }
 
-    fun addPrice(value: String) = apply {
+    fun addPriceStr(value: String) = apply {
         addPrice(value.length)
     }
 
@@ -51,7 +58,7 @@ class RestaurantSearchBuilder {
         priceSet.addAll(value.filter { (it >= 1) && (it <= 4) })
     }
 
-    fun addPrices(value: Collection<String>) = apply {
+    fun addPricesStr(value: Collection<String>) = apply {
         addPrices(value.map { it.length })
     }
 
@@ -63,9 +70,13 @@ class RestaurantSearchBuilder {
         optionsMap["limit"] = value.toString()
     }
 
+    fun getLimit() = optionsMap["limit"]?.toIntOrNull() ?: 0
+
     fun setOffset(value: Int) = apply {
         optionsMap["offset"] = value.toString()
     }
+
+    fun getOffset() = optionsMap["offset"]?.toIntOrNull() ?: 0
 
     fun addSuccessCallback(callback: (Response<RestaurantSearchResponse>) -> Unit) = apply {
         successCallbacks.add(callback)
@@ -75,22 +86,24 @@ class RestaurantSearchBuilder {
         failureCallbacks.add(callback)
     }
 
-    fun call(yelpService: YelpService) = apply {
+    suspend fun call(yelpService: YelpService) {
         if (categorySet.size > 0) optionsMap["categories"] = categorySet.joinToString { it.alias }
         if (priceSet.size > 0) optionsMap["price"] = priceSet.joinToString()
-        yelpService.searchRestaurants(optionsMap)
-            .enqueue(object : Callback<RestaurantSearchResponse> {
-                override fun onResponse(
-                    call: Call<RestaurantSearchResponse>,
-                    response: Response<RestaurantSearchResponse>
-                ) {
-                    successCallbacks.forEach { it(response) }
-                }
+        withContext(Dispatchers.IO) {
+            yelpService.searchRestaurants(optionsMap)
+                .enqueue(object : Callback<RestaurantSearchResponse> {
+                    override fun onResponse(
+                        call: Call<RestaurantSearchResponse>,
+                        response: Response<RestaurantSearchResponse>
+                    ) {
+                        successCallbacks.forEach { it(response) }
+                    }
 
-                override fun onFailure(call: Call<RestaurantSearchResponse>, t: Throwable) {
-                    failureCallbacks.forEach { it(t) }
-                }
+                    override fun onFailure(call: Call<RestaurantSearchResponse>, t: Throwable) {
+                        failureCallbacks.forEach { it(t) }
+                    }
 
-            })
+                })
+        }
     }
 }

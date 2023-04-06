@@ -20,9 +20,6 @@ interface RestaurantDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateRestaurant(vararg restaurant: Restaurant)
 
-    @Query("UPDATE Restaurant SET userSeen = 1 WHERE id == :id")
-    suspend fun markRestaurantSeen(id: String)
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRestaurantCategories(vararg ref: RestaurantCategoryReference)
 
@@ -33,14 +30,17 @@ interface RestaurantDao {
     suspend fun deleteRestaurant(business: Restaurant)
 
     @Query("SELECT * FROM Restaurant")
-    @Transaction
-    fun getRestaurants(): Flow<List<RestaurantWithCategories>>
+    fun getRestaurants(): Flow<List<Restaurant>>
 
     @Query("SELECT * FROM Restaurant WHERE id == :id")
-    @Transaction
-    fun getRestaurant(id: String): Flow<RestaurantWithCategories>
+    fun getRestaurant(id: String): Restaurant?
 
-    @Query("SELECT * FROM Restaurant WHERE userSeen == 0")
-    @Transaction
-    fun getNewRestaurants(): Flow<List<RestaurantWithCategories>>
+    @Query("SELECT * FROM Restaurant WHERE userSeen == 0 ORDER BY insertTime")
+    fun getNewRestaurants(): Flow<List<Restaurant>>
+
+    @Query("SELECT * FROM Restaurant WHERE userSeen == 0 ORDER BY insertTime LIMIT :limit")
+    fun getNewRestaurants(limit: Int): Flow<List<Restaurant>>
+
+    @Query("SELECT COUNT(id) FROM Restaurant WHERE userSeen == 0")
+    fun getUnseenRestaurantCount(): Int
 }

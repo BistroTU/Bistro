@@ -38,7 +38,8 @@ data class Restaurant (
     val photos: List<String>?,
     val hours: List<Hours>?,
     // This isn't part of the Yelp API
-    var userSeen: Boolean = false
+    var userSeen: Boolean = false,
+    var insertTime: Long = System.currentTimeMillis()
 )
 
 data class Coordinates (

@@ -23,10 +23,10 @@ interface CategoryDao {
     @Transaction
     fun getCategoriesWithRestaurants(): Flow<List<CategoryWithRestaurants>>
 
-    @Query("SELECT * FROM Category WHERE alias == :alias")
-    fun getCategory(alias: String): Flow<Category>
+    @Query("SELECT * FROM Category WHERE alias IN (:alias)")
+    fun getCategory(vararg alias: String): Flow<Category>
 
-    @Query("SELECT * FROM Category WHERE alias == :alias")
+    @Query("SELECT * FROM Category WHERE alias IN (:alias)")
     @Transaction
-    fun getCategoryWithRestaurants(alias: String): Flow<CategoryWithRestaurants>
+    fun getCategoryWithRestaurants(vararg alias: String): Flow<CategoryWithRestaurants>
 }
