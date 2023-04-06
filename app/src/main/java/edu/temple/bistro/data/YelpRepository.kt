@@ -8,6 +8,7 @@ import edu.temple.bistro.data.api.YelpService
 import edu.temple.bistro.data.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -15,7 +16,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class YelpRepository(private val database: YelpDatabase) {
+class YelpRepository(private val database: BistroDatabase) {
 
     private val httpClient by lazy {
         OkHttpClient.Builder().addInterceptor {
@@ -38,6 +39,9 @@ class YelpRepository(private val database: YelpDatabase) {
     private val defaultScope by lazy {
         CoroutineScope(Dispatchers.IO)
     }
+    private val appState by lazy {
+        database.stateDao().getState()
+    }
 
     private var lastSearch: RestaurantSearchBuilder? = null
 
@@ -49,6 +53,8 @@ class YelpRepository(private val database: YelpDatabase) {
 
     suspend fun getRestaurant(id: String): Restaurant? {
         return withContext(Dispatchers.IO) {
+            val dbRestaurant = database.restaurantDao().getRestaurant(id)
+            if (dbRestaurant?.photos != null && (System.currentTimeMillis() - dbRestaurant.insertTime) < 1800000) return@withContext dbRestaurant
             RestaurantDetailRequest(id).callBlocking(yelpService)?.let { rest ->
                 rest.insertTime = System.currentTimeMillis()
                 database.restaurantDao().insertRestaurant(rest)
@@ -69,11 +75,18 @@ class YelpRepository(private val database: YelpDatabase) {
             restaurant.forEach { it.userSeen = true }
             database.restaurantDao().updateRestaurant(*restaurant)
             if (database.restaurantDao().getUnseenRestaurantCount() <= 5) {
+                if (lastSearch == null) {
+                    appState.firstOrNull()?.searchParams?.let {
+                        lastSearch = RestaurantSearchBuilder().apply { options = it }
+                    }
+                }
                 lastSearch?.let { search ->
                     RestaurantSearchBuilder(search).apply {
                         setOffset(getOffset() + getLimit())
                         addSuccessCallback(this@YelpRepository::searchSuccessCallback)
                         addFailureCallback(this@YelpRepository::searchFailureCallback)
+                        lastSearch = this
+                        updateState(this.options)
                     }.call(yelpService)
                 }
             }
@@ -86,6 +99,8 @@ class YelpRepository(private val database: YelpDatabase) {
                 .addSuccessCallback(this@YelpRepository::searchSuccessCallback)
                 .addFailureCallback(this@YelpRepository::searchFailureCallback)
                 .call(yelpService)
+            lastSearch = builder
+            updateState(builder.options)
         }
     }
     fun fetchRestaurants() {
@@ -100,7 +115,6 @@ class YelpRepository(private val database: YelpDatabase) {
     private fun searchSuccessCallback(response: Response<RestaurantSearchResponse>) {
         if (response.isSuccessful) {
             Log.d(this::class.simpleName, response.body().toString())
-            Log.d(this::class.simpleName, response.body()!!.total.toString())
             defaultScope.launch {
                 response.body()!!.restaurants.forEach { rest ->
                     rest.insertTime = System.currentTimeMillis()
@@ -120,5 +134,15 @@ class YelpRepository(private val database: YelpDatabase) {
 
     private fun searchFailureCallback(err: Throwable) {
         Log.d(this::class.simpleName, "API Fail: ${err.message}")
+    }
+
+    private suspend fun updateState(params: String) {
+        val state = appState.firstOrNull()
+        if (state == null) {
+            database.stateDao().insertState(AppState(params))
+        }
+        else {
+            database.stateDao().updateState(state.apply { searchParams = params })
+        }
     }
 }

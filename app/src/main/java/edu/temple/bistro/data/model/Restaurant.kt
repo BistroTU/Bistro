@@ -27,7 +27,7 @@ data class Restaurant (
     @Embedded
     val coordinates: Coordinates?,
     val transactions: List<String>,
-    val price: String,
+    val price: String?,
     @Embedded
     val location: Location?,
     val phone: String,

@@ -1,5 +1,7 @@
 package edu.temple.bistro.data.api
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import edu.temple.bistro.data.model.Category
 import edu.temple.bistro.data.model.RestaurantSearchResponse
 import kotlinx.coroutines.Dispatchers
@@ -10,6 +12,7 @@ import retrofit2.Response
 
 class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
 
+    private val optionsMapType = object : TypeToken<MutableMap<String, String>>() {}.type
     private val optionsMap = mutableMapOf(
         Pair("device_platform", "android"),
         Pair("limit", "20")
@@ -23,6 +26,10 @@ class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
     private val priceSet = mutableSetOf<Int>()
     private val successCallbacks = mutableListOf<(Response<RestaurantSearchResponse>) -> Unit>()
     private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
+
+    var options
+        get() = Gson().toJson(optionsMap)
+        set(value) = optionsMap.putAll(Gson().fromJson(value, optionsMapType))
 
     fun setLatitude(value: Double) = apply {
         optionsMap["latitude"] = value.toString()
