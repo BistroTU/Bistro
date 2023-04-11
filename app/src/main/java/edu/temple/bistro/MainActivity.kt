@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationManager: LocationManager
     private lateinit var locationListener: LocationListener
     private var currentLocation: Location? = null
+    private val database = Firebase.database
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,14 +69,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun dbTest() {
-        val database = Firebase.database
         val usersRef = database.getReference("users")
         val userId = "some_user_id"
         val user = User(
             "John",
             "Doe",
             "johndoe",
-            "some_id_token",
             true,
             "https://some.url/profile_picture.jpg",
             FilterCriteria(
