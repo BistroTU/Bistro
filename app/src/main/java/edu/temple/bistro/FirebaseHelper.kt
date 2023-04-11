@@ -1,6 +1,9 @@
 package edu.temple.bistro
 
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class FirebaseHelper {
 
@@ -36,6 +39,23 @@ class FirebaseHelper {
             .addOnFailureListener {}
     }
 
+    fun removeLikedPlace(db: FirebaseDatabase, userID: String, placeID: String) {
+        val userRef = db.getReference("users").child(userID)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userData = snapshot.getValue(User::class.java)
+                if (userData != null) {
+                    val friends = userData.liked_places
+                    val updatedFriends = friends.filterKeys { it != placeID }
+                    userRef.child("liked_places").setValue(updatedFriends)
+                        .addOnSuccessListener {}
+                        .addOnFailureListener {}
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
     fun addDislikedPlace(db: FirebaseDatabase, user: String, placeID: String, place: Place) {
         val userRef = db.getReference("users").child(user)
         val dislikedPlacesRef = userRef.child("disliked_places")
@@ -43,6 +63,23 @@ class FirebaseHelper {
         newPlaceRef.setValue(mapOf(placeID to place))
             .addOnSuccessListener {}
             .addOnFailureListener {}
+    }
+
+    fun removeDislikedPlace(db: FirebaseDatabase, userID: String, placeID: String) {
+        val userRef = db.getReference("users").child(userID)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userData = snapshot.getValue(User::class.java)
+                if (userData != null) {
+                    val friends = userData.disliked_places
+                    val updatedFriends = friends.filterKeys { it != placeID }
+                    userRef.child("disliked_places").setValue(updatedFriends)
+                        .addOnSuccessListener {}
+                        .addOnFailureListener {}
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     fun addFriend(db: FirebaseDatabase, user: String, friendID: String, friend: Friend) {
@@ -54,8 +91,20 @@ class FirebaseHelper {
             .addOnFailureListener {}
     }
 
-    //add friend
-
-    //remove friend
-
+    fun removeFriend(db: FirebaseDatabase, userID: String, friendID: String) {
+        val userRef = db.getReference("users").child(userID)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userData = snapshot.getValue(User::class.java)
+                if (userData != null) {
+                    val friends = userData.friends
+                    val updatedFriends = friends.filterKeys { it != friendID }
+                    userRef.child("friends").setValue(updatedFriends)
+                        .addOnSuccessListener {}
+                        .addOnFailureListener {}
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
 }
