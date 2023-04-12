@@ -2,10 +2,13 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
-
+    id 'kotlin-android'
     id "kotlin-kapt"
     id "com.google.dagger.hilt.android"
 }
+
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 android {
     namespace 'edu.temple.bistro'
@@ -22,6 +25,8 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField "String", "YELP_TOKEN", localProperties['yelpToken']
     }
 
     buildTypes {
@@ -57,6 +62,16 @@ dependencies {
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
+    def room_version = "2.4.3"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    implementation "androidx.compose.runtime:runtime-livedata:1.2.1"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.0'
@@ -68,6 +83,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
     implementation 'androidx.compose.material:material:1.1.1'
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.3'
+    implementation 'com.google.firebase:firebase-database-ktx:20.1.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

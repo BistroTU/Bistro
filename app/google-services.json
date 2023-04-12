@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "196179748050",
+    "firebase_url": "https://bistrotu-d309d-default-rtdb.firebaseio.com",
+    "project_id": "bistrotu-d309d",
+    "storage_bucket": "bistrotu-d309d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196179748050:android:4cefb0c1dad8fa05edf90b",
+        "android_client_info": {
+          "package_name": "edu.temple.bistro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196179748050-n97hrm8g1vbhd4sv0coi7ds6slcn7js0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkGq405qrdyA05UnUHZi8Y6QK953TjeW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196179748050-n97hrm8g1vbhd4sv0coi7ds6slcn7js0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
