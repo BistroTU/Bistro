@@ -8,6 +8,7 @@ import edu.temple.bistro.data.api.YelpService
 import edu.temple.bistro.data.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,13 +52,17 @@ class YelpRepository(private val database: BistroDatabase) {
     val newRestaurants
         get() = database.restaurantDao().getNewRestaurants()
 
+    val state
+        get() = appState
+
     suspend fun getRestaurant(id: String): Restaurant? {
         return withContext(Dispatchers.IO) {
             val dbRestaurant = database.restaurantDao().getRestaurant(id)
             if (dbRestaurant?.photos != null && (System.currentTimeMillis() - dbRestaurant.insertTime) < 1800000) return@withContext dbRestaurant
             RestaurantDetailRequest(id).callBlocking(yelpService)?.let { rest ->
                 rest.insertTime = System.currentTimeMillis()
-                database.restaurantDao().insertRestaurant(rest)
+                if (dbRestaurant == null) database.restaurantDao().insertRestaurant(rest)
+                else database.restaurantDao().updateRestaurant(rest.apply { userSeen = dbRestaurant.userSeen })
                 rest.categories.forEach { cat ->
                     database.categoryDao().insertCategory(cat)
                     database.restaurantDao().insertRestaurantCategories(
@@ -95,6 +100,9 @@ class YelpRepository(private val database: BistroDatabase) {
 
     fun fetchRestaurants(builder: RestaurantSearchBuilder) {
         defaultScope.launch {
+            database.restaurantDao().getNewRestaurants().collectLatest {
+                database.restaurantDao().deleteRestaurant(*it.toTypedArray())
+            }
             builder
                 .addSuccessCallback(this@YelpRepository::searchSuccessCallback)
                 .addFailureCallback(this@YelpRepository::searchFailureCallback)
@@ -110,6 +118,12 @@ class YelpRepository(private val database: BistroDatabase) {
             .setLongitude(-75.156400)
             .addCategory(Category("bars", "Bars"))
             .setLimit(20))
+    }
+
+    fun saveState(state: AppState) {
+        defaultScope.launch {
+            database.stateDao().updateState(state)
+        }
     }
 
     private fun searchSuccessCallback(response: Response<RestaurantSearchResponse>) {

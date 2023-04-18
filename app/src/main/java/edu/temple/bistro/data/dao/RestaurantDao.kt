@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RestaurantDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertRestaurant(vararg restaurant: Restaurant)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
@@ -27,7 +27,7 @@ interface RestaurantDao {
     suspend fun updateRestaurantCategories(vararg ref: RestaurantCategoryReference)
 
     @Delete
-    suspend fun deleteRestaurant(business: Restaurant)
+    suspend fun deleteRestaurant(vararg business: Restaurant)
 
     @Query("SELECT * FROM Restaurant")
     fun getRestaurants(): Flow<List<Restaurant>>
