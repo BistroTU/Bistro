@@ -51,6 +51,9 @@ class YelpRepository(private val database: BistroDatabase) {
     val newRestaurants
         get() = database.restaurantDao().getNewRestaurants()
 
+    val state
+        get() = appState
+
     suspend fun getRestaurant(id: String): Restaurant? {
         return withContext(Dispatchers.IO) {
             val dbRestaurant = database.restaurantDao().getRestaurant(id)
@@ -110,6 +113,12 @@ class YelpRepository(private val database: BistroDatabase) {
             .setLongitude(-75.156400)
             .addCategory(Category("bars", "Bars"))
             .setLimit(20))
+    }
+
+    fun saveState(state: AppState) {
+        defaultScope.launch {
+            database.stateDao().updateState(state)
+        }
     }
 
     private fun searchSuccessCallback(response: Response<RestaurantSearchResponse>) {
