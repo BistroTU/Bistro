@@ -1,9 +1,7 @@
 package edu.temple.bistro
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,18 +9,15 @@ import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 //import edu.temple.Screen
-import edu.temple.bistro.ui.restaurant.RestaurantCard
-import edu.temple.bistro.ui.restaurant.RestaurantData
-import com.alexstyl.swipeablecard.rememberSwipeableCardState
+import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
 import edu.temple.bistro.ui.navigation.screens.HomeScreen
-import edu.temple.bistro.ui.navigation.screens.SignUpScreen
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, viewModel: BistroViewModel) {
     NavHost(navController = navController, startDestination = NavigationItem.HomeScreen.route) {
         composable(route = NavigationItem.HomeScreen.route) {
-            HomeScreen(navController)
+            HomeScreen(navController, viewModel)
         }
         composable(
             route = NavigationItem.SettingsScreen.route,

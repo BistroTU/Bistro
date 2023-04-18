@@ -30,11 +30,12 @@ import com.alexstyl.swipeablecard.SwipeableCardState
 import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import com.alexstyl.swipeablecard.swipableCard
 import edu.temple.bistro.R
+import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.ui.friends.ProfilePicture
 
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
-fun RestaurantCard(data: RestaurantData, state: SwipeableCardState) {
+fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
     var sizeImage by remember { mutableStateOf(IntSize.Zero) }
 
     val gradient = Brush.verticalGradient(
@@ -98,7 +99,7 @@ fun RestaurantCard(data: RestaurantData, state: SwipeableCardState) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = data.location,
+                    text = data.location?.city.toString(),
                     fontSize = 20.sp,
                     color = Color.White,
                     fontStyle = FontStyle.Italic

@@ -11,6 +11,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -24,23 +25,21 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.alexstyl.swipeablecard.Direction
+import edu.temple.bistro.ui.BistroViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    val restaurants = listOf(
-        RestaurantData("Dominos Pizza", "University City, PA", arrayOf("pizza", "fast food", "delivery", "wings"), 0.3f, 5),
-        RestaurantData("Eddies Pizza", "Philadelphia, PA", arrayOf("category, categorization, delivery"), 0.5f, 3)
-    )
-    val restaurantData1: RestaurantData = RestaurantData("Dominos Pizza", "University City, PA", arrayOf("pizza", "fast food", "delivery", "wings"), 0.3f, 5)
-    val state = rememberSwipeableCardState()
-
+fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-            val states = restaurants.reversed()
-                .map { it to rememberSwipeableCardState() }
+//            val states = restaurants.reversed()
+//                .map { it to rememberSwipeableCardState() }
+            val newRestaurantStates = viewModel.yelpRepository.newRestaurants.collectAsState(initial = emptyList())
+            val states = newRestaurantStates.value.map { it to rememberSwipeableCardState() }
+            Log.d("Restaurants: ", newRestaurantStates.value.toString())
             var hint by remember {
                 mutableStateOf("Swipe a card or press a button below")
             }
@@ -62,9 +61,10 @@ fun HomeScreen(navController: NavController) {
 //                    }
                 }
             }
-            Row(Modifier
-                .padding(horizontal = 24.dp, vertical = 32.dp)
-                .fillMaxWidth(),
+            Row(
+                Modifier
+                    .padding(horizontal = 24.dp, vertical = 32.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 CircleButton(
@@ -91,6 +91,12 @@ fun HomeScreen(navController: NavController) {
                         }
                     },
                     icon = Icons.Rounded.Favorite
+                )
+                CircleButton(
+                    onClick = {
+                        viewModel.yelpRepository.fetchRestaurants()
+                    },
+                    icon = Icons.Rounded.Refresh
                 )
             }
     }

@@ -25,7 +25,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import edu.temple.bistro.ui.navigation.*
 import edu.temple.bistro.ui.theme.BistroTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
+import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
 
 @AndroidEntryPoint
@@ -57,6 +60,8 @@ class MainActivity : ComponentActivity() {
             currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         }
 
+        val viewModel = ViewModelProvider(this).get(BistroViewModel::class.java)
+
         setContent {
             val navController = rememberNavController()
 
@@ -71,7 +76,7 @@ class MainActivity : ComponentActivity() {
                 },
             ) {
                 it
-                Navigation(navController)
+                Navigation(navController, viewModel)
             }
         }
     }
