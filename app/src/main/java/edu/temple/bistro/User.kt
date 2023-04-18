@@ -9,5 +9,6 @@ data class User(
     val filter_criteria: FilterCriteria,
     val liked_places: Map<String, Place>,
     val disliked_places: Map<String, Place>,
-    val friends: Map<String, Friend>
+    val friends: Map<String, Friend>,
+    val groups: List<String>
 )

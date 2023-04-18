@@ -1,5 +1,7 @@
 package edu.temple.bistro
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -107,4 +109,50 @@ class FirebaseHelper {
             override fun onCancelled(error: DatabaseError) {}
         })
     }
+
+    fun getLikedPlaces(db: FirebaseDatabase, userID: String): MutableList<Place> {
+        val usersRef = db.getReference("users")
+        val userRef = usersRef.child(userID)
+        val likedPlacesRef = userRef.child("places").child("liked_places")
+        val likedPlacesList = mutableListOf<Place>()
+        likedPlacesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (placeSnapshot in snapshot.children) {
+                    val placeName = placeSnapshot.child("name").getValue(String::class.java)
+                    val placeTimestamp = placeSnapshot.child("timestamp").getValue(Long::class.java)
+                    val place = Place(placeName!!, placeTimestamp!!)
+                    likedPlacesList.add(place)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e(TAG, "Failed to retrieve liked places: ${error.message}")
+            }
+        })
+        return likedPlacesList
+    }
+
+    fun getDislikedPlaces(db: FirebaseDatabase, userID: String): MutableList<Place> {
+        val usersRef = db.getReference("users")
+        val userRef = usersRef.child(userID)
+        val likedPlacesRef = userRef.child("places").child("disliked_places")
+        val likedPlacesList = mutableListOf<Place>()
+        likedPlacesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (placeSnapshot in snapshot.children) {
+                    val placeName = placeSnapshot.child("name").getValue(String::class.java)
+                    val placeTimestamp = placeSnapshot.child("timestamp").getValue(Long::class.java)
+                    val place = Place(placeName!!, placeTimestamp!!)
+                    likedPlacesList.add(place)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e(TAG, "Failed to retrieve disliked places: ${error.message}")
+            }
+        })
+        return likedPlacesList
+    }
+
+
+
 }

@@ -150,7 +150,8 @@ class MainActivity : ComponentActivity() {
             mapOf(
                 "friendid1" to Friend("Jane Doe","accepted"),
                 "friendid2" to Friend("Janice Joe","pending")
-            )
+            ),
+            listOf()
         )
         usersRef.child(userId).setValue(user)
 
