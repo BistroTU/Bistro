@@ -1,6 +1,7 @@
 package edu.temple.bistro.ui.restaurant
 
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -49,11 +50,14 @@ fun RestaurantCard(data: RestaurantData, state: SwipeableCardState) {
             .width(325.dp)
             .swipableCard(
                 state = state,
-                onSwiped = { direction ->
-                    println("The card was swiped to $direction")
+                blockedDirections = listOf(com.alexstyl.swipeablecard.Direction.Down),
+                onSwiped = {
+                    // swipes are handled by the LaunchedEffect
+                    // so that we track button clicks & swipes
+                    // from the same place
                 },
                 onSwipeCancel = {
-                    println("The swiping was cancelled")
+                    Log.d("Swipeable-Card", "Cancelled swipe")
                 }
             )
 

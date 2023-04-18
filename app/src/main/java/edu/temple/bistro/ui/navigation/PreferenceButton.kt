@@ -44,7 +44,7 @@ fun LikeButton(state: SwipeableCardState) {
             scope.launch {
                 state.swipe(Direction.Right)
             }
-        }
+        },
     )
 }
 
