@@ -95,8 +95,8 @@ class YelpRepository(private val database: BistroDatabase) {
                     refreshInProgress = true
                     RestaurantSearchBuilder(search).apply {
                         setOffset(getOffset() + getLimit())
-                        addSuccessCallback(this@YelpRepository::searchSuccessCallback)
-                        addFailureCallback(this@YelpRepository::searchFailureCallback)
+                        addSuccessCallback(this@YelpRepository::refreshSuccessCallback)
+                        addFailureCallback(this@YelpRepository::refreshFailureCallback)
                         lastSearch = this
                         updateState(this.options)
                     }.call(yelpService)
