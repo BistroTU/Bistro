@@ -8,6 +8,7 @@ import edu.temple.bistro.data.api.YelpService
 import edu.temple.bistro.data.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -55,6 +56,10 @@ class YelpRepository(private val database: BistroDatabase) {
     val state
         get() = appState
 
+    fun getNewRestaurants(limit: Int = 5): Flow<List<Restaurant>> {
+        return database.restaurantDao().getNewRestaurants(limit)
+    }
+
     suspend fun getRestaurant(id: String): Restaurant? {
         return withContext(Dispatchers.IO) {
             val dbRestaurant = database.restaurantDao().getRestaurant(id)
@@ -100,9 +105,9 @@ class YelpRepository(private val database: BistroDatabase) {
 
     fun fetchRestaurants(builder: RestaurantSearchBuilder) {
         defaultScope.launch {
-            database.restaurantDao().getNewRestaurants().collectLatest {
-                database.restaurantDao().deleteRestaurant(*it.toTypedArray())
-            }
+//            database.restaurantDao().getNewRestaurants().collectLatest {
+//                database.restaurantDao().deleteRestaurant(*it.toTypedArray())
+//            }
             builder
                 .addSuccessCallback(this@YelpRepository::searchSuccessCallback)
                 .addFailureCallback(this@YelpRepository::searchFailureCallback)
