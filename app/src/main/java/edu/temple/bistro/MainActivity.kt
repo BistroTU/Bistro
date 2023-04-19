@@ -12,34 +12,25 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.compose.ui.unit.dp
-import com.alexstyl.swipeablecard.Direction
-import com.alexstyl.swipeablecard.SwipeableCardState
 import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import dagger.hilt.android.AndroidEntryPoint
 import edu.temple.bistro.ui.navigation.*
 import edu.temple.bistro.ui.restaurant.RestaurantCard
 import edu.temple.bistro.ui.restaurant.RestaurantData
-import edu.temple.bistro.ui.signup.SignUp
 import edu.temple.bistro.ui.theme.BistroTheme
-import androidx.compose.foundation.lazy.items
 import java.util.*
+import kotlin.random.Random.Default.nextInt
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -123,30 +114,18 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun dbTest() {
-        val usersRef = database.getReference("users")
-        val userId = "user-" + UUID.randomUUID().toString()
+        val username = "username"
         val placeId1 = "place-" + UUID.randomUUID().toString()
         val placeId2 = "place-" + UUID.randomUUID().toString()
-        helper.addUser(database, userId,"test1", "Test", "LastName")
-        helper.addLikedPlace(database, userId, placeId1, Place("Mama Meatball", 1))
-        helper.addLikedPlace(database, userId, placeId2, Place("Mama!! Meatball!!", 2))
-        helper.createGroup(database, userId)
-        helper.createGroup(database, userId)
-
-
-
-        usersRef.addValueEventListener(object: ValueEventListener {
-
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                val value = snapshot.value
-                Log.d("READ FROM DB", "Value is: $value")
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-
-        })
+        helper.addUser(username,"John", "Doe")
+        helper.addLikedPlace(username, placeId1, Place("Mama Meatball", 1))
+        helper.addLikedPlace(username, placeId2, Place("Mama!! Meatball!!", 2))
+        helper.createGroup(username)
+        helper.createGroup(username)
+        helper.setAgeBoolean(username, false)
+        helper.getLikedPlaces("username") { likedPlaces ->
+            Log.d("LIKED PLACES", likedPlaces.toString())
+        }
     }
 
     @SuppressLint("MissingPermission")
