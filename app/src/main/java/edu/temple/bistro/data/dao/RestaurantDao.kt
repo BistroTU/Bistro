@@ -35,10 +35,10 @@ interface RestaurantDao {
     @Query("SELECT * FROM Restaurant WHERE id == :id")
     fun getRestaurant(id: String): Restaurant?
 
-    @Query("SELECT * FROM Restaurant WHERE userSeen == 0 ORDER BY insertTime")
+    @Query("SELECT * FROM Restaurant WHERE userSeen == 0 ORDER BY insertTime DESC")
     fun getNewRestaurants(): Flow<List<Restaurant>>
 
-    @Query("SELECT * FROM Restaurant WHERE userSeen == 0 ORDER BY insertTime LIMIT :limit")
+    @Query("SELECT * FROM Restaurant WHERE userSeen == 0 ORDER BY insertTime DESC LIMIT :limit")
     fun getNewRestaurants(limit: Int): Flow<List<Restaurant>>
 
     @Query("SELECT COUNT(id) FROM Restaurant WHERE userSeen == 0")
