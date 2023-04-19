@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationListener: LocationListener
     private var currentLocation: Location? = null
     private val database = Firebase.database
+    private val helper = FirebaseHelper(database)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,11 +127,11 @@ class MainActivity : ComponentActivity() {
         val userId = "user-" + UUID.randomUUID().toString()
         val placeId1 = "place-" + UUID.randomUUID().toString()
         val placeId2 = "place-" + UUID.randomUUID().toString()
-        FirebaseHelper().addUser(database, userId,"test1", "Test", "LastName")
-        FirebaseHelper().addLikedPlace(database, userId, placeId1, Place("Mama Meatball", 1))
-        FirebaseHelper().addLikedPlace(database, userId, placeId2, Place("Mama!! Meatball!!", 2))
-        FirebaseHelper().createGroup(database, userId)
-        FirebaseHelper().createGroup(database, userId)
+        helper.addUser(database, userId,"test1", "Test", "LastName")
+        helper.addLikedPlace(database, userId, placeId1, Place("Mama Meatball", 1))
+        helper.addLikedPlace(database, userId, placeId2, Place("Mama!! Meatball!!", 2))
+        helper.createGroup(database, userId)
+        helper.createGroup(database, userId)
 
 
 

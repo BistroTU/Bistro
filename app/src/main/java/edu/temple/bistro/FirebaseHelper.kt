@@ -8,9 +8,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlin.random.Random.Default.nextInt
 
-class FirebaseHelper {
+class FirebaseHelper(private val db: FirebaseDatabase) {
 
-    fun addUser(db: FirebaseDatabase, userID: String, firstName: String, lastName: String, username: String) {
+    fun addUser(userID: String, firstName: String, lastName: String, username: String) {
         val userRef = db.reference.child("users").child(userID)
         val userData = mapOf(
             "first_name" to firstName,
@@ -22,7 +22,7 @@ class FirebaseHelper {
             .addOnFailureListener {}
     }
 
-    fun addLikedPlace(db: FirebaseDatabase, user: String, placeID: String, place: Place) {
+    fun addLikedPlace(user: String, placeID: String, place: Place) {
         val userRef = db.getReference("users").child(user)
         val likedPlacesRef = userRef.child("liked_places")
         val newPlaceRef = likedPlacesRef.child(placeID)
@@ -31,7 +31,7 @@ class FirebaseHelper {
             .addOnFailureListener {}
     }
 
-    fun removeLikedPlace(db: FirebaseDatabase, userID: String, placeID: String) {
+    fun removeLikedPlace(userID: String, placeID: String) {
         val userRef = db.getReference("users").child(userID)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -48,16 +48,16 @@ class FirebaseHelper {
         })
     }
 
-    fun addDislikedPlace(db: FirebaseDatabase, user: String, placeID: String, place: Place) {
+    fun addDislikedPlace(user: String, placeID: String, place: Place) {
         val userRef = db.getReference("users").child(user)
         val dislikedPlacesRef = userRef.child("disliked_places")
-        val newPlaceRef = dislikedPlacesRef.push()
-        newPlaceRef.setValue(mapOf(placeID to place))
+        val newPlaceRef = dislikedPlacesRef.child(placeID)
+        newPlaceRef.setValue(place)
             .addOnSuccessListener {}
             .addOnFailureListener {}
     }
 
-    fun removeDislikedPlace(db: FirebaseDatabase, userID: String, placeID: String) {
+    fun removeDislikedPlace(userID: String, placeID: String) {
         val userRef = db.getReference("users").child(userID)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -74,7 +74,8 @@ class FirebaseHelper {
         })
     }
 
-    fun addFriend(db: FirebaseDatabase, user: String, friendID: String, friend: Friend) {
+    fun addFriend(user: String, friendID: String, friend: Friend) {
+        //TODO: fix
         val userRef = db.getReference("users").child(user)
         val friendRef = userRef.child("friends")
         val newPlaceRef = friendRef.push()
@@ -83,7 +84,8 @@ class FirebaseHelper {
             .addOnFailureListener {}
     }
 
-    fun removeFriend(db: FirebaseDatabase, userID: String, friendID: String) {
+    fun removeFriend(userID: String, friendID: String) {
+        //TODO: fix
         val userRef = db.getReference("users").child(userID)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -100,7 +102,7 @@ class FirebaseHelper {
         })
     }
 
-    fun getLikedPlaces(db: FirebaseDatabase, userID: String): MutableList<Place> {
+    fun getLikedPlaces(userID: String): MutableList<Place> {
         val usersRef = db.getReference("users")
         val userRef = usersRef.child(userID)
         val likedPlacesRef = userRef.child("places").child("liked_places")
@@ -122,7 +124,7 @@ class FirebaseHelper {
         return likedPlacesList
     }
 
-    fun getDislikedPlaces(db: FirebaseDatabase, userID: String): MutableList<Place> {
+    fun getDislikedPlaces(userID: String): MutableList<Place> {
         val usersRef = db.getReference("users")
         val userRef = usersRef.child(userID)
         val likedPlacesRef = userRef.child("places").child("disliked_places")
@@ -143,7 +145,7 @@ class FirebaseHelper {
         return likedPlacesList
     }
 
-    fun createGroup(db: FirebaseDatabase, userID: String) {
+    fun createGroup(userID: String) {
         val userRef = db.getReference("users").child(userID)
         val groupsRef = db.getReference("groups")
         val groupID = generateGroupID()
@@ -156,7 +158,7 @@ class FirebaseHelper {
         userRef.child("groups").child(groupID).setValue("")
     }
 
-    fun joinGroup(db: FirebaseDatabase, userID: String, groupID: String) {
+    fun joinGroup(userID: String, groupID: String) {
         val userRef = db.getReference("users").child(userID)
         val groupsRef = db.getReference("groups").child(groupID)
 
