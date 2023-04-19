@@ -6,26 +6,16 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlin.random.Random.Default.nextInt
 
 class FirebaseHelper {
 
-    fun addUser(db: FirebaseDatabase, user: String, firstName: String, lastName: String, username: String) {
-        val userRef = db.reference.child("users").child(user)
+    fun addUser(db: FirebaseDatabase, userID: String, firstName: String, lastName: String, username: String) {
+        val userRef = db.reference.child("users").child(userID)
         val userData = mapOf(
             "first_name" to firstName,
             "last_name" to lastName,
-            "username" to username,
-            "age_over_21" to false, // initialize with false
-            "profile_picture" to null, // initialize with null
-            "friends" to null, // initialize with null
-            "filter_criteria" to mapOf(
-                "min_rating" to null, // initialize with null
-                "price_level" to null, // initialize with null
-                "max_distance" to null, // initialize with null
-                "categories" to null // initialize with null
-            ),
-            "liked_places" to null, // initialize with null
-            "disliked_places" to null // initialize with null
+            "username" to username
         )
         userRef.setValue(userData)
             .addOnSuccessListener {}
@@ -35,8 +25,8 @@ class FirebaseHelper {
     fun addLikedPlace(db: FirebaseDatabase, user: String, placeID: String, place: Place) {
         val userRef = db.getReference("users").child(user)
         val likedPlacesRef = userRef.child("liked_places")
-        val newPlaceRef = likedPlacesRef.push()
-        newPlaceRef.setValue(mapOf(placeID to place))
+        val newPlaceRef = likedPlacesRef.child(placeID)
+        newPlaceRef.setValue(place)
             .addOnSuccessListener {}
             .addOnFailureListener {}
     }
@@ -153,6 +143,43 @@ class FirebaseHelper {
         return likedPlacesList
     }
 
+    fun createGroup(db: FirebaseDatabase, userID: String) {
+        val userRef = db.getReference("users").child(userID)
+        val groupsRef = db.getReference("groups")
+        val groupID = generateGroupID()
+        val members = listOf(userID)
+        val newGroup = Group(
+            id = groupID,
+            members = members
+        )
+        groupsRef.child(newGroup.id).setValue(newGroup)
+        userRef.child("groups").child(groupID).setValue("")
+    }
 
+    fun joinGroup(db: FirebaseDatabase, userID: String, groupID: String) {
+        val userRef = db.getReference("users").child(userID)
+        val groupsRef = db.getReference("groups").child(groupID)
+
+        groupsRef.child("members").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val members = dataSnapshot.value as? MutableList<String>
+                if (members != null) {
+                    members.add(userID)
+                    groupsRef.child("members").setValue(members)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        userRef.child("groups").child(groupID).setValue("")
+    }
+
+    private fun generateGroupID(): String {
+        val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
+        val randomIndex = (alphabet.indices).random()
+        val randomLetter = alphabet[randomIndex]
+        val randomNumber = nextInt(1000,10000)
+        return "${randomLetter}${randomNumber}"
+    }
 
 }

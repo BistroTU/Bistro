@@ -39,6 +39,7 @@ import edu.temple.bistro.ui.restaurant.RestaurantData
 import edu.temple.bistro.ui.signup.SignUp
 import edu.temple.bistro.ui.theme.BistroTheme
 import androidx.compose.foundation.lazy.items
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -122,38 +123,16 @@ class MainActivity : ComponentActivity() {
 
     private fun dbTest() {
         val usersRef = database.getReference("users")
-        val userId = "some_user_id"
-        val user = User(
-            "John",
-            "Doe",
-            "johndoe",
-            true,
-            "https://some.url/profile_picture.jpg",
-            FilterCriteria(
-                4.5,
-                2,
-                10,
-                mapOf(
-                    "restaurant" to true,
-                    "cafe" to true,
-                    "bar" to false
-                )
-            ),
-            mapOf(
-                "placeid1" to Place("place1", System.currentTimeMillis()),
-                "placeid2" to Place("place2", System.currentTimeMillis())
-            ),
-            mapOf(
-                "placeid3" to Place("place3", System.currentTimeMillis()),
-                "placeid4" to Place("place4", System.currentTimeMillis())
-            ),
-            mapOf(
-                "friendid1" to Friend("Jane Doe","accepted"),
-                "friendid2" to Friend("Janice Joe","pending")
-            ),
-            listOf()
-        )
-        usersRef.child(userId).setValue(user)
+        val userId = "user-" + UUID.randomUUID().toString()
+        val placeId1 = "place-" + UUID.randomUUID().toString()
+        val placeId2 = "place-" + UUID.randomUUID().toString()
+        FirebaseHelper().addUser(database, userId,"test1", "Test", "LastName")
+        FirebaseHelper().addLikedPlace(database, userId, placeId1, Place("Mama Meatball", 1))
+        FirebaseHelper().addLikedPlace(database, userId, placeId2, Place("Mama!! Meatball!!", 2))
+        FirebaseHelper().createGroup(database, userId)
+        FirebaseHelper().createGroup(database, userId)
+
+
 
         usersRef.addValueEventListener(object: ValueEventListener {
 
