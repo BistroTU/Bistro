@@ -48,7 +48,7 @@ data class Coordinates (
 )
 
 data class Location (
-    val address1: String,
+    val address1: String?,
     @ColumnInfo(defaultValue = "")
     val address2: String?,
     @ColumnInfo(defaultValue = "")
