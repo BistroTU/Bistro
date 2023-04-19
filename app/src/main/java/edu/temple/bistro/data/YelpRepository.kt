@@ -44,6 +44,7 @@ class YelpRepository(private val database: BistroDatabase) {
     private val appState by lazy {
         database.stateDao().getState()
     }
+    private var refreshInProgress = false
 
     private var lastSearch: RestaurantSearchBuilder? = null
 
@@ -84,13 +85,14 @@ class YelpRepository(private val database: BistroDatabase) {
         defaultScope.launch {
             restaurant.forEach { it.userSeen = true }
             database.restaurantDao().updateRestaurant(*restaurant)
-            if (database.restaurantDao().getUnseenRestaurantCount() <= 5) {
+            if (database.restaurantDao().getUnseenRestaurantCount() <= 5 && !refreshInProgress) {
                 if (lastSearch == null) {
                     appState.firstOrNull()?.searchParams?.let {
                         lastSearch = RestaurantSearchBuilder().apply { options = it }
                     }
                 }
                 lastSearch?.let { search ->
+                    refreshInProgress = true
                     RestaurantSearchBuilder(search).apply {
                         setOffset(getOffset() + getLimit())
                         addSuccessCallback(this@YelpRepository::searchSuccessCallback)
@@ -151,8 +153,18 @@ class YelpRepository(private val database: BistroDatabase) {
         }
     }
 
+    private fun refreshSuccessCallback(response: Response<RestaurantSearchResponse>) {
+        refreshInProgress = false
+        searchSuccessCallback(response)
+    }
+
     private fun searchFailureCallback(err: Throwable) {
         Log.d(this::class.simpleName, "API Fail: ${err.message}")
+    }
+
+    private fun refreshFailureCallback(err: Throwable) {
+        refreshInProgress = false
+        searchFailureCallback(err)
     }
 
     private suspend fun updateState(params: String) {
