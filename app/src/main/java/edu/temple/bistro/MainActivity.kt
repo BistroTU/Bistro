@@ -30,7 +30,6 @@ import edu.temple.bistro.ui.restaurant.RestaurantCard
 import edu.temple.bistro.ui.restaurant.RestaurantData
 import edu.temple.bistro.ui.theme.BistroTheme
 import java.util.*
-import kotlin.random.Random.Default.nextInt
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

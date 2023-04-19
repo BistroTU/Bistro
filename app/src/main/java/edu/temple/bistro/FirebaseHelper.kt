@@ -1,6 +1,5 @@
 package edu.temple.bistro
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -18,21 +17,33 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             "username" to username
         )
         userRef.setValue(userData)
+            .addOnFailureListener {
+                Log.d("ERROR", "Adding user $username unsuccessful.")
+            }
     }
 
     fun setAgeBoolean(username: String, isOver21: Boolean) {
         val userRef = db.getReference("users").child(username).child("age_over_21")
         userRef.setValue(isOver21)
+            .addOnFailureListener {
+                Log.d("ERROR", "Setting boolean for $username unsuccessful.")
+            }
     }
 
     fun setProfilePicture(username: String, picture: String) {
         val userRef = db.getReference("users").child(username).child("profile_picture")
         userRef.setValue(picture)
+            .addOnFailureListener {
+                Log.d("ERROR", "Setting profile picture for $username unsuccessful.")
+            }
     }
 
     fun setFilterCriteria(username: String, filterCriteria: FilterCriteria) {
         val userRef = db.getReference("users").child(username).child("filter_criteria")
         userRef.setValue(filterCriteria)
+            .addOnFailureListener {
+                Log.d("ERROR", "Setting filter criteria for $username unsuccessful.")
+            }
     }
 
 
@@ -41,8 +52,9 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         val likedPlacesRef = userRef.child("liked_places")
         val newPlaceRef = likedPlacesRef.child(placeID)
         newPlaceRef.setValue(place)
-            .addOnSuccessListener {}
-            .addOnFailureListener {}
+            .addOnFailureListener {
+                Log.d("ERROR", "Liking place $placeID unsuccessful.")
+            }
     }
 
     //does not work
@@ -55,11 +67,14 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
                     val friends = userData.liked_places
                     val updatedFriends = friends.filterKeys { it != placeID }
                     userRef.child("liked_places").setValue(updatedFriends)
-                        .addOnSuccessListener {}
-                        .addOnFailureListener {}
+                        .addOnFailureListener {
+                            Log.d("ERROR", "Removing liked place $placeID unsuccessful.")
+                        }
                 }
             }
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("ERROR", error.toString())
+            }
         })
     }
 
@@ -67,12 +82,12 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         val userRef = db.getReference("users").child(username)
         val dislikedPlacesRef = userRef.child("disliked_places")
         val newPlaceRef = dislikedPlacesRef.child(placeID)
-        newPlaceRef.setValue(place)
-            .addOnSuccessListener {}
-            .addOnFailureListener {}
+        newPlaceRef.setValue(place).addOnFailureListener {
+            Log.d("ERROR", "Disliking place $placeID unsuccessful.")
+        }
     }
 
-    //does not work
+    //TODO: does not work
     fun removeDislikedPlace(username: String, placeID: String) {
         val userRef = db.getReference("users").child(username)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -82,39 +97,120 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
                     val friends = userData.disliked_places
                     val updatedFriends = friends.filterKeys { it != placeID }
                     userRef.child("disliked_places").setValue(updatedFriends)
-                        .addOnSuccessListener {}
-                        .addOnFailureListener {}
+                        .addOnFailureListener {
+                            Log.d("ERROR", "Removing disliked place $placeID unsuccessful.")
+                        }
                 }
             }
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("ERROR", error.toString())
+            }
         })
     }
 
-    fun addFriend(username: String, friendID: String, friend: Friend) {
+    fun addFriend(username: String, friend: Friend) {
         val userRef = db.getReference("users").child(username)
         val friendRef = userRef.child("friends")
-        val newPlaceRef = friendRef.child(friendID)
+        val newPlaceRef = friendRef.child(friend.username)
         newPlaceRef.setValue(friend)
-            .addOnSuccessListener {}
-            .addOnFailureListener {}
+            .addOnFailureListener {
+                Log.d("ERROR", "Adding friend ${friend.username} unsuccessful.")
+        }
     }
 
-    //does not work
-    fun removeFriend(username: String, friendID: String) {
+    //TODO: does not work
+    fun removeFriend(username: String, friendUsername: String) {
         val userRef = db.getReference("users").child(username)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userData = snapshot.getValue(User::class.java)
                 if (userData != null) {
                     val friends = userData.friends
-                    val updatedFriends = friends.filterKeys { it != friendID }
+                    val updatedFriends = friends.filterKeys { it != friendUsername }
                     userRef.child("friends").setValue(updatedFriends)
                         .addOnSuccessListener {}
                         .addOnFailureListener {}
                 }
             }
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("ERROR", "Removing friend $friendUsername unsuccessful.")
+            }
+        })
+    }
+
+    fun createGroup(username: String) {
+        val userRef = db.getReference("users").child(username)
+        val groupsRef = db.getReference("groups")
+        val groupID = generateGroupID()
+        val members = listOf(username)
+        val newGroup = Group(
+            id = groupID,
+            members = members
+        )
+        groupsRef.child(newGroup.id).setValue(newGroup)
+        userRef.child("groups").child(groupID).setValue("")
+            .addOnFailureListener {
+            Log.d("ERROR", "Group creation unsuccessful.")
+        }
+    }
+
+    fun joinGroup(username: String, groupID: String) {
+        val userRef = db.getReference("users").child(username)
+        val groupsRef = db.getReference("groups").child(groupID)
+        groupsRef.child("members").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val members = dataSnapshot.value as? MutableList<String>
+                if (members != null) {
+                    members.add(username)
+                    groupsRef.child("members").setValue(members)
+                }
+            }
             override fun onCancelled(error: DatabaseError) {}
         })
+        userRef.child("groups").child(groupID).setValue("")
+            .addOnFailureListener {
+                Log.d("ERROR", "Joining group $groupID unsuccessful.")
+            }
+    }
+
+    fun leaveGroup(){
+        //TODO: implement
+    }
+
+    fun deleteGroup(){
+        //TODO: implement
+    }
+
+    private fun generateGroupID(): String {
+        val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
+        val randomIndex = (alphabet.indices).random()
+        val randomLetter = alphabet[randomIndex]
+        val randomNumber = nextInt(1000,10000)
+        return "${randomLetter}${randomNumber}"
+    }
+
+    fun getName() {
+        //TODO: implement
+    }
+
+    fun getProfilePicture() {
+        //TODO: implement
+    }
+
+    fun getOver21() {
+        //TODO: implement
+    }
+
+    fun getFilterCriteria() {
+        //TODO: implement
+    }
+
+    fun getFriends() {
+        //TODO: implement
+    }
+    
+    fun getUserGroups() {
+        //TODO: implement
     }
 
     fun getLikedPlaces(userId: String, callback: (List<Map<String, Any>>) -> Unit) {
@@ -156,42 +252,4 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             }
         })
     }
-
-    fun createGroup(username: String) {
-        val userRef = db.getReference("users").child(username)
-        val groupsRef = db.getReference("groups")
-        val groupID = generateGroupID()
-        val members = listOf(username)
-        val newGroup = Group(
-            id = groupID,
-            members = members
-        )
-        groupsRef.child(newGroup.id).setValue(newGroup)
-        userRef.child("groups").child(groupID).setValue("")
-    }
-
-    fun joinGroup(username: String, groupID: String) {
-        val userRef = db.getReference("users").child(username)
-        val groupsRef = db.getReference("groups").child(groupID)
-        groupsRef.child("members").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val members = dataSnapshot.value as? MutableList<String>
-                if (members != null) {
-                    members.add(username)
-                    groupsRef.child("members").setValue(members)
-                }
-            }
-            override fun onCancelled(error: DatabaseError) {}
-        })
-        userRef.child("groups").child(groupID).setValue("")
-    }
-
-    private fun generateGroupID(): String {
-        val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
-        val randomIndex = (alphabet.indices).random()
-        val randomLetter = alphabet[randomIndex]
-        val randomNumber = nextInt(1000,10000)
-        return "${randomLetter}${randomNumber}"
-    }
-
 }
