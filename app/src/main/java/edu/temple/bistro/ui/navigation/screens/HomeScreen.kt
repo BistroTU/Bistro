@@ -37,8 +37,8 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
     ) {
 //            val states = restaurants.reversed()
 //                .map { it to rememberSwipeableCardState() }
-            val newRestaurantStates = viewModel.yelpRepository.getNewRestaurants(5).collectAsState(initial = emptyList())
-            val states = newRestaurantStates.value.map { it to rememberSwipeableCardState() }
+            val newRestaurantStates = viewModel.yelpRepository.newRestaurants.collectAsState(initial = emptyList())
+            val states = newRestaurantStates.value.reversed().map { it to rememberSwipeableCardState() }
             var hint by remember {
                 mutableStateOf("Swipe a card or press a button below")
             }
@@ -56,6 +56,7 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
                     }
                     LaunchedEffect(restaurant, state.swipedDirection) {
                         if (state.swipedDirection == Direction.Right || state.swipedDirection == Direction.Left) {
+                            Log.d("MarkSeen", "hello ${restaurant.name}")
                             viewModel.yelpRepository.markRestaurantSeen(restaurant)
                         }
                     }

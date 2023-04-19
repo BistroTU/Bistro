@@ -85,6 +85,7 @@ class YelpRepository(private val database: BistroDatabase) {
         defaultScope.launch {
             restaurant.forEach { it.userSeen = true }
             database.restaurantDao().updateRestaurant(*restaurant)
+            Log.d("YelpRepository", database.restaurantDao().getUnseenRestaurantCount().toString())
             if (database.restaurantDao().getUnseenRestaurantCount() <= 5 && !refreshInProgress) {
                 if (lastSearch == null) {
                     appState.firstOrNull()?.searchParams?.let {
