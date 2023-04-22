@@ -33,6 +33,16 @@
           "timestamp": "number"
         }
       }
+      "groups": {
+          "group_ids": "list"
+      }
+    }
+  }
+}
+{
+ "groups": {
+   "@gid": {
+     "usernames": "list"
     }
   }
 }
