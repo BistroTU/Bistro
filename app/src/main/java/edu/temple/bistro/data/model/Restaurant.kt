@@ -48,17 +48,17 @@ data class Coordinates (
 )
 
 data class Location (
-    val address1: String,
+    val address1: String?,
     @ColumnInfo(defaultValue = "")
     val address2: String?,
     @ColumnInfo(defaultValue = "")
     val address3: String?,
-    val city: String,
+    val city: String?,
     @ColumnInfo(name = "zip_code")
     @SerializedName("zip_code")
-    val zipCode: String,
-    val country: String,
-    val state: String,
+    val zipCode: String?,
+    val country: String?,
+    val state: String?,
     @ColumnInfo(name = "display_address")
     @SerializedName("display_address")
     val displayAddress: List<String>

@@ -1,6 +1,7 @@
 package edu.temple.bistro.ui.restaurant
 
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,16 +25,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.alexstyl.swipeablecard.ExperimentalSwipeableCardApi
 import com.alexstyl.swipeablecard.SwipeableCardState
 import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import com.alexstyl.swipeablecard.swipableCard
 import edu.temple.bistro.R
+import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.ui.friends.ProfilePicture
 
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
-fun RestaurantCard(data: RestaurantData, state: SwipeableCardState) {
+fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
     var sizeImage by remember { mutableStateOf(IntSize.Zero) }
 
     val gradient = Brush.verticalGradient(
@@ -43,17 +46,21 @@ fun RestaurantCard(data: RestaurantData, state: SwipeableCardState) {
     )
 
     Card(
-        elevation = 4.dp,
+        elevation = 0.dp,
         modifier = Modifier
             .height(482.dp)
             .width(325.dp)
             .swipableCard(
                 state = state,
-                onSwiped = { direction ->
-                    println("The card was swiped to $direction")
+                blockedDirections = listOf(com.alexstyl.swipeablecard.Direction.Down),
+                onSwiped = {
+                    // swipes are handled by the LaunchedEffect
+                    // so that we track button clicks & swipes
+                    // from the same place
+                    Log.d("Categories", data.categories.toString())
                 },
                 onSwipeCancel = {
-                    println("The swiping was cancelled")
+                    Log.d("Swipeable-Card", "Cancelled swipe")
                 }
             )
 
@@ -64,12 +71,20 @@ fun RestaurantCard(data: RestaurantData, state: SwipeableCardState) {
             Image(painter = painterResource(id = R.drawable.dominos),
                 contentDescription = "",
                 modifier = Modifier
+                    .fillMaxHeight()
                     .onGloballyPositioned {
                         sizeImage = it.size
                     },
                 alignment = Alignment.Center,
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.Crop
                 )
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                contentScale = ContentScale.Crop,
+                model = data.imageUrl,
+                contentDescription = "Translated description of what the image contains"
+            )
             Box(modifier = Modifier
                 .matchParentSize()
                 .background(gradient))
@@ -94,7 +109,7 @@ fun RestaurantCard(data: RestaurantData, state: SwipeableCardState) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = data.location,
+                    text = data.location?.city.toString(),
                     fontSize = 20.sp,
                     color = Color.White,
                     fontStyle = FontStyle.Italic

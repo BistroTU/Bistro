@@ -8,7 +8,8 @@ import edu.temple.bistro.data.api.YelpService
 import edu.temple.bistro.data.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,6 +44,7 @@ class YelpRepository(private val database: BistroDatabase) {
     private val appState by lazy {
         database.stateDao().getState()
     }
+    private var refreshInProgress = false
 
     private var lastSearch: RestaurantSearchBuilder? = null
 
@@ -54,6 +56,10 @@ class YelpRepository(private val database: BistroDatabase) {
 
     val state
         get() = appState
+
+    fun getNewRestaurants(limit: Int = 5): Flow<List<Restaurant>> {
+        return database.restaurantDao().getNewRestaurants(limit)
+    }
 
     suspend fun getRestaurant(id: String): Restaurant? {
         return withContext(Dispatchers.IO) {
@@ -79,17 +85,19 @@ class YelpRepository(private val database: BistroDatabase) {
         defaultScope.launch {
             restaurant.forEach { it.userSeen = true }
             database.restaurantDao().updateRestaurant(*restaurant)
-            if (database.restaurantDao().getUnseenRestaurantCount() <= 5) {
+            Log.d("YelpRepository", database.restaurantDao().getUnseenRestaurantCount().toString())
+            if (database.restaurantDao().getUnseenRestaurantCount() <= 5 && !refreshInProgress) {
                 if (lastSearch == null) {
                     appState.firstOrNull()?.searchParams?.let {
                         lastSearch = RestaurantSearchBuilder().apply { options = it }
                     }
                 }
                 lastSearch?.let { search ->
+                    refreshInProgress = true
                     RestaurantSearchBuilder(search).apply {
                         setOffset(getOffset() + getLimit())
-                        addSuccessCallback(this@YelpRepository::searchSuccessCallback)
-                        addFailureCallback(this@YelpRepository::searchFailureCallback)
+                        addSuccessCallback(this@YelpRepository::refreshSuccessCallback)
+                        addFailureCallback(this@YelpRepository::refreshFailureCallback)
                         lastSearch = this
                         updateState(this.options)
                     }.call(yelpService)
@@ -100,7 +108,7 @@ class YelpRepository(private val database: BistroDatabase) {
 
     fun fetchRestaurants(builder: RestaurantSearchBuilder) {
         defaultScope.launch {
-            database.restaurantDao().getNewRestaurants().collectLatest {
+            database.restaurantDao().getNewRestaurants().first().let {
                 database.restaurantDao().deleteRestaurant(*it.toTypedArray())
             }
             builder
@@ -146,8 +154,18 @@ class YelpRepository(private val database: BistroDatabase) {
         }
     }
 
+    private fun refreshSuccessCallback(response: Response<RestaurantSearchResponse>) {
+        refreshInProgress = false
+        searchSuccessCallback(response)
+    }
+
     private fun searchFailureCallback(err: Throwable) {
         Log.d(this::class.simpleName, "API Fail: ${err.message}")
+    }
+
+    private fun refreshFailureCallback(err: Throwable) {
+        refreshInProgress = false
+        searchFailureCallback(err)
     }
 
     private suspend fun updateState(params: String) {
