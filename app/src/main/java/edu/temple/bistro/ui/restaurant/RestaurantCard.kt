@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.alexstyl.swipeablecard.ExperimentalSwipeableCardApi
 import com.alexstyl.swipeablecard.SwipeableCardState
 import com.alexstyl.swipeablecard.rememberSwipeableCardState
@@ -45,7 +46,7 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
     )
 
     Card(
-        elevation = 4.dp,
+        elevation = 0.dp,
         modifier = Modifier
             .height(482.dp)
             .width(325.dp)
@@ -56,6 +57,7 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
                     // swipes are handled by the LaunchedEffect
                     // so that we track button clicks & swipes
                     // from the same place
+                    Log.d("Categories", data.categories.toString())
                 },
                 onSwipeCancel = {
                     Log.d("Swipeable-Card", "Cancelled swipe")
@@ -69,12 +71,20 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
             Image(painter = painterResource(id = R.drawable.dominos),
                 contentDescription = "",
                 modifier = Modifier
+                    .fillMaxHeight()
                     .onGloballyPositioned {
                         sizeImage = it.size
                     },
                 alignment = Alignment.Center,
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.Crop
                 )
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                contentScale = ContentScale.Crop,
+                model = data.imageUrl,
+                contentDescription = "Translated description of what the image contains"
+            )
             Box(modifier = Modifier
                 .matchParentSize()
                 .background(gradient))
