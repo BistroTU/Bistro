@@ -29,6 +29,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
+import edu.temple.bistro.ui.navigation.screens.SignUpScreen
+import edu.temple.bistro.ui.signin.SignInScreen
 import java.util.*
 
 @AndroidEntryPoint
@@ -78,7 +80,7 @@ class MainActivity : ComponentActivity() {
                 },
             ) {
                 it
-                Navigation(navController, viewModel)
+                SignInScreen()
             }
         }
     }
