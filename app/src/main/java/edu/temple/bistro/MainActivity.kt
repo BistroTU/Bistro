@@ -9,6 +9,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -39,8 +40,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationManager: LocationManager
     private lateinit var locationListener: LocationListener
     private var currentLocation: Location? = null
-    private val database = Firebase.database
+    private val database = Firebase.database.apply {
+        setPersistenceEnabled(true)
+    }
     private val helper = FirebaseHelper(database)
+    private var requestTwice = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,20 +55,9 @@ class MainActivity : ComponentActivity() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener {}
 
-        if (checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 123)
-        } else {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                0L,
-                0f,
-                locationListener
-            )
-            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        }
+        requestLocationPermission()
 
-        val viewModel = ViewModelProvider(this).get(BistroViewModel::class.java)
+        val viewModel = ViewModelProvider(this)[BistroViewModel::class.java]
 
         setContent {
             val navController = rememberNavController()
@@ -100,6 +93,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun requestLocationPermission() {
+        if (checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 123)
+        } else {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                0L,
+                0f,
+                locationListener
+            )
+            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        }
+    }
+
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -116,6 +124,18 @@ class MainActivity : ComponentActivity() {
                     locationListener
                 )
                 currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            } else {
+                Toast.makeText(
+                    this,
+                    "Bistro needs access to location information to function properly.",
+                    Toast.LENGTH_LONG
+                ).show()
+                if (!requestTwice) {
+                    requestLocationPermission()
+                    requestTwice = true
+                } else {
+                    finish()
+                }
             }
         }
     }
