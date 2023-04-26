@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                 },
             ) {
                 it
-                SignInScreen()
+                Navigation(navController, viewModel)
             }
         }
     }
