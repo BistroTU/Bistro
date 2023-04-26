@@ -43,7 +43,7 @@ fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
         ) {
             Text(
                 modifier = Modifier.padding(7.dp),
-                text = "Sign Up"
+                text = "Sign In"
             )
         }
 
