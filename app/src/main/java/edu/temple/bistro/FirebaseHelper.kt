@@ -5,6 +5,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlin.random.Random
 import kotlin.random.Random.Default.nextInt
 
 class FirebaseHelper(private val db: FirebaseDatabase) {
@@ -185,7 +186,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
         val randomIndex = (alphabet.indices).random()
         val randomLetter = alphabet[randomIndex]
-        val randomNumber = nextInt(1000,10000)
+        val randomNumber = Random(System.currentTimeMillis()).nextInt(1000,10000)
         return "${randomLetter}${randomNumber}"
     }
 
