@@ -76,14 +76,12 @@ class MainActivity : ComponentActivity() {
             )
 
             BistroTheme {
-
                 Scaffold(
                     bottomBar = {
                         BottomNavbar(navController = navController, items = bottomNavigationItems)
                     },
-                ) {
-                    it
-                    Navigation(navController, viewModel)
+                ) { innerPadding ->
+                    Navigation(navController, viewModel, innerPadding)
                 }
             }
         }

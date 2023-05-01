@@ -11,12 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import edu.temple.bistro.ui.theme.BistroTheme
+import edu.temple.bistro.ui.theme.Inter
 
 @Composable
 fun CategoryChip(category: String, onClick: () -> Unit) {
@@ -26,7 +28,7 @@ fun CategoryChip(category: String, onClick: () -> Unit) {
             .background(Color.White)
             .padding(10.dp, 2.dp)
     ) {
-        Text(text = category.lowercase(), fontSize = 12.sp)
+        Text(text = category.lowercase(), fontSize = 12.sp, fontFamily = Inter, fontWeight = FontWeight.Normal)
     }
 }
 

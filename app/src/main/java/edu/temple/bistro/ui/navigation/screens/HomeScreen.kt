@@ -34,11 +34,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
+fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPadding: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
+            .padding(innerPadding),
+        verticalArrangement = Arrangement.Bottom
     ) {
 //            val states = restaurants.reversed()
 //                .map { it to rememberSwipeableCardState() }
@@ -49,27 +51,27 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
             }
 
             val scope = rememberCoroutineScope()
-            Box(
-                Modifier.fillMaxWidth()
-            ) {
-                states.forEach { (restaurant, state) ->
-                    if (state.swipedDirection == null) {
-                        RestaurantCard(
-                            state = state,
-                            data = restaurant,
-                        )
-                    }
-                    LaunchedEffect(restaurant, state.swipedDirection) {
-                        if (state.swipedDirection == Direction.Right || state.swipedDirection == Direction.Left) {
-                            Log.d("MarkSeen", "hello ${restaurant.name}")
-                            viewModel.yelpRepository.markRestaurantSeen(restaurant)
+            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                Box {
+                    states.forEach { (restaurant, state) ->
+                        if (state.swipedDirection == null) {
+                            RestaurantCard(
+                                state = state,
+                                data = restaurant,
+                            )
+                        }
+                        LaunchedEffect(restaurant, state.swipedDirection) {
+                            if (state.swipedDirection == Direction.Right || state.swipedDirection == Direction.Left) {
+                                Log.d("MarkSeen", "hello ${restaurant.name}")
+                                viewModel.yelpRepository.markRestaurantSeen(restaurant)
+                            }
                         }
                     }
                 }
             }
             Row(
                 Modifier
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 24.dp, vertical = 24.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
