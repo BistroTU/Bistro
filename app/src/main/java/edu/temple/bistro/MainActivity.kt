@@ -74,13 +74,17 @@ class MainActivity : ComponentActivity() {
                 NavigationItem.FriendsScreen,
                 NavigationItem.SettingsScreen
             )
-            Scaffold(
-                bottomBar = {
-                    BottomNavbar(navController = navController, items = bottomNavigationItems)
-                },
-            ) {
-                it
-                Navigation(navController, viewModel)
+
+            BistroTheme {
+
+                Scaffold(
+                    bottomBar = {
+                        BottomNavbar(navController = navController, items = bottomNavigationItems)
+                    },
+                ) {
+                    it
+                    Navigation(navController, viewModel)
+                }
             }
         }
     }

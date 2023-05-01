@@ -9,6 +9,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Refresh
@@ -22,7 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexstyl.swipeablecard.Direction
 import edu.temple.bistro.ui.BistroViewModel
@@ -34,6 +38,7 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .fillMaxHeight()
     ) {
 //            val states = restaurants.reversed()
 //                .map { it to rememberSwipeableCardState() }
@@ -64,10 +69,11 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
             }
             Row(
                 Modifier
-                    .padding(horizontal = 24.dp, vertical = 32.dp)
+                    .padding(horizontal = 24.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+                // Close Button
                 CircleButton(
                     onClick = {
                         scope.launch {
@@ -78,8 +84,11 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
                             last?.swipe(com.alexstyl.swipeablecard.Direction.Left)
                         }
                     },
-                    icon = Icons.Rounded.Close
+                    icon = Icons.Filled.Close,
+                    iconColor = Color(0xFFDA5D5D)
                 )
+
+                // Check Button
                 CircleButton(
                     onClick = {
                         scope.launch {
@@ -91,13 +100,17 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
                             last?.swipe(Direction.Right)
                         }
                     },
-                    icon = Icons.Rounded.Favorite
+                    icon = Icons.Filled.Check,
+                    iconColor = Color(0xFF5ABA4A)
                 )
+
+                // Refresh Button
                 CircleButton(
                     onClick = {
                         viewModel.yelpRepository.fetchRestaurants()
                     },
-                    icon = Icons.Rounded.Refresh
+                    icon = Icons.Rounded.Refresh,
+                    iconColor = Color.Gray
                 )
             }
     }
@@ -107,16 +120,23 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
 private fun CircleButton(
     onClick: () -> Unit,
     icon: ImageVector,
+    iconColor: Color
 ) {
     IconButton(
         modifier = Modifier
             .clip(CircleShape)
-            .background(MaterialTheme.colors.primary)
-            .size(56.dp)
-            .border(2.dp, MaterialTheme.colors.primary, CircleShape),
+            .background(Color.White)
+            .size(88.dp)
+            .border(2.dp, Color.hsv(0f, 0f, 0.95f, 1f), CircleShape),
         onClick = onClick
     ) {
         Icon(icon, null,
-            tint = MaterialTheme.colors.onPrimary)
+            tint = iconColor, modifier = Modifier.size(48.dp))
     }
+}
+
+@Composable
+@Preview
+fun CircleButtonPreview() {
+    CircleButton(onClick = { /*TODO*/ }, icon = Icons.Filled.Close, iconColor = Color.Red)
 }

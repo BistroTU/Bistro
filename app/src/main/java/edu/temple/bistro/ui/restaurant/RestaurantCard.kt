@@ -2,8 +2,10 @@ package edu.temple.bistro.ui.restaurant
 
 import android.graphics.Paint.Align
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 //import androidx.compose.foundation.layout.BoxScopeInstance.matchParentSize
@@ -20,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +38,7 @@ import com.alexstyl.swipeablecard.swipableCard
 import edu.temple.bistro.R
 import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.ui.friends.ProfilePicture
+import edu.temple.bistro.ui.theme.Inter
 
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
@@ -105,16 +110,25 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
             ) {
                 Text(
                     text = data.name,
-                    fontSize = 32.sp,
+                    fontSize = 30.sp,
                     color = Color.White,
+                    fontFamily = Inter,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = data.location?.city.toString(),
-                    fontSize = 20.sp,
+                    text = "${data.location?.city.toString()}, ${data.location?.state.toString()}",
+                    fontSize = 23.sp,
                     color = Color.White,
-                    fontStyle = FontStyle.Italic
+                    fontFamily = Inter,
+                    fontStyle = FontStyle.Italic,
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 7.dp),
                 )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp).height(IntrinsicSize.Min)
+                ) {
+                    data.categories.forEach { category -> CategoryChip(category.title, {}) }
+                }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(7.dp)
                 ) {
