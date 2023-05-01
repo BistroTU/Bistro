@@ -17,16 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import edu.temple.bistro.ui.restaurant.RestaurantCard
-import edu.temple.bistro.ui.restaurant.RestaurantData
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.alexstyl.swipeablecard.Direction
 import edu.temple.bistro.ui.BistroViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,69 +33,69 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel) {
     ) {
 //            val states = restaurants.reversed()
 //                .map { it to rememberSwipeableCardState() }
-            val newRestaurantStates = viewModel.yelpRepository.newRestaurants.collectAsState(initial = emptyList())
-            val states = newRestaurantStates.value.reversed().map { it to rememberSwipeableCardState() }
-            var hint by remember {
-                mutableStateOf("Swipe a card or press a button below")
-            }
+        val newRestaurantStates =
+            viewModel.yelpRepository.newRestaurants.collectAsState(initial = emptyList())
+        val states = newRestaurantStates.value.reversed().map { it to rememberSwipeableCardState() }
+        val scope = rememberCoroutineScope()
 
-            val scope = rememberCoroutineScope()
-            Box(
-                Modifier.fillMaxWidth()
-            ) {
-                states.forEach { (restaurant, state) ->
-                    if (state.swipedDirection == null) {
-                        RestaurantCard(
-                            state = state,
-                            data = restaurant,
-                        )
-                    }
-                    LaunchedEffect(restaurant, state.swipedDirection) {
-                        if (state.swipedDirection == Direction.Right || state.swipedDirection == Direction.Left) {
-                            Log.d("MarkSeen", "hello ${restaurant.name}")
-                            viewModel.yelpRepository.markRestaurantSeen(restaurant)
-                        }
+
+
+        Box(
+            Modifier.fillMaxWidth()
+        ) {
+            states.forEach { (restaurant, state) ->
+                if (state.swipedDirection == null) {
+                    RestaurantCard(
+                        state = state,
+                        data = restaurant,
+                    )
+                }
+                LaunchedEffect(restaurant, state.swipedDirection) {
+                    if (state.swipedDirection == Direction.Right || state.swipedDirection == Direction.Left) {
+                        Log.d("MarkSeen", "hello ${restaurant.name}")
+                        viewModel.yelpRepository.markRestaurantSeen(restaurant)
                     }
                 }
             }
-            Row(
-                Modifier
-                    .padding(horizontal = 24.dp, vertical = 32.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                CircleButton(
-                    onClick = {
-                        scope.launch {
-                            val last = states.reversed()
-                                .firstOrNull {
-                                    it.second.offset.value == Offset(0f, 0f)
-                                }?.second
-                            last?.swipe(com.alexstyl.swipeablecard.Direction.Left)
-                        }
-                    },
-                    icon = Icons.Rounded.Close
-                )
-                CircleButton(
-                    onClick = {
-                        scope.launch {
-                            val last = states.reversed()
-                                .firstOrNull {
-                                    it.second.offset.value == Offset(0f, 0f)
-                                }?.second
+        }
+        Row(
+            Modifier
+                .padding(horizontal = 24.dp, vertical = 32.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            CircleButton(
+                onClick = {
+                    scope.launch {
+                        val last = states.reversed()
+                            .firstOrNull {
+                                it.second.offset.value == Offset(0f, 0f)
+                            }?.second
+                        last?.swipe(com.alexstyl.swipeablecard.Direction.Left)
+                    }
+                },
+                icon = Icons.Rounded.Close
+            )
+            CircleButton(
+                onClick = {
+                    scope.launch {
+                        val last = states.reversed()
+                            .firstOrNull {
+                                it.second.offset.value == Offset(0f, 0f)
+                            }?.second
 
-                            last?.swipe(Direction.Right)
-                        }
-                    },
-                    icon = Icons.Rounded.Favorite
-                )
-                CircleButton(
-                    onClick = {
-                        viewModel.yelpRepository.fetchRestaurants()
-                    },
-                    icon = Icons.Rounded.Refresh
-                )
-            }
+                        last?.swipe(Direction.Right)
+                    }
+                },
+                icon = Icons.Rounded.Favorite
+            )
+            CircleButton(
+                onClick = {
+                    viewModel.yelpRepository.fetchRestaurants()
+                },
+                icon = Icons.Rounded.Refresh
+            )
+        }
     }
 }
 
@@ -116,7 +112,9 @@ private fun CircleButton(
             .border(2.dp, MaterialTheme.colors.primary, CircleShape),
         onClick = onClick
     ) {
-        Icon(icon, null,
-            tint = MaterialTheme.colors.onPrimary)
+        Icon(
+            icon, null,
+            tint = MaterialTheme.colors.onPrimary
+        )
     }
 }
