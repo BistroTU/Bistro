@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var locationManager: LocationManager
     private lateinit var locationListener: LocationListener
-    private var currentLocation: Location? = null
+    private lateinit var viewModel: BistroViewModel
     private val database = Firebase.database.apply {
         setPersistenceEnabled(true)
     }
@@ -55,9 +55,9 @@ class MainActivity : ComponentActivity() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener {}
 
-        requestLocationPermission()
+        viewModel = ViewModelProvider(this)[BistroViewModel::class.java]
 
-        val viewModel = ViewModelProvider(this)[BistroViewModel::class.java]
+        requestLocationPermission()
 
         setContent {
             val navController = rememberNavController()
@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
                 0f,
                 locationListener
             )
-            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            viewModel.location.value = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         }
     }
 
@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
                     0f,
                     locationListener
                 )
-                currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                viewModel.location.value = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             } else {
                 Toast.makeText(
                     this,

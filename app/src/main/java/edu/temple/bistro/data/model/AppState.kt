@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class AppState (
     @ColumnInfo(name = "search_params")
-    var searchParams: String,
+    var searchParams: String = "",
     @PrimaryKey
     val id: Int = 0
 )
