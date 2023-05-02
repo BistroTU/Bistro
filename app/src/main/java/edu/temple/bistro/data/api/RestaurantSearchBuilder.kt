@@ -15,7 +15,7 @@ class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
     private val optionsMapType = object : TypeToken<MutableMap<String, String>>() {}.type
     private val optionsMap = mutableMapOf(
         Pair("device_platform", "android"),
-        Pair("limit", "20")
+        Pair("limit", "10")
     )
 
     init {
