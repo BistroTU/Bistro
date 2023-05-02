@@ -238,8 +238,21 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         //TODO: implement if profile pics added
     }
 
-    fun getOver21() {
-        //TODO: implement
+    fun getOver21(username: String, callback: (Boolean) -> Unit) {
+        val userRef = db.getReference("users").child(username)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val ageOver21 = dataSnapshot.child("age_over_21").getValue(Boolean::class.java)
+                    callback(ageOver21 ?: false)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("AGE BOOLEAN", "Db error, returning false.")
+                callback(false)
+            }
+        })
     }
 
     fun getFilterCriteria() {
@@ -265,14 +278,36 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
                     callback(emptyList())
                 }
             }
+
             override fun onCancelled(databaseError: DatabaseError) {
                 callback(emptyList())
             }
         })
     }
     
-    fun getUserGroups() {
-        //TODO: implement
+    fun getUserGroups(username: String, callback: (List<String>) -> Unit) {
+        val userRef = db.getReference("users").child(username)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val groupsList = mutableListOf<String>()
+                    val groupsSnapshot = dataSnapshot.child("groups")
+                    groupsSnapshot.children.forEach { groupSnapshot ->
+                        val groupCode = groupSnapshot.getValue(String::class.java)
+                        if (groupCode != null) {
+                            groupsList.add(groupCode)
+                        }
+                    }
+                    callback(groupsList)
+                } else {
+                    callback(emptyList())
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(emptyList())
+            }
+        })
     }
 
     fun getLikedPlaces(username: String, callback: (List<Map<String, Any>>) -> Unit) {
