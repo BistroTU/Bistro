@@ -35,12 +35,15 @@ import com.alexstyl.swipeablecard.ExperimentalSwipeableCardApi
 import com.alexstyl.swipeablecard.SwipeableCardState
 import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import com.alexstyl.swipeablecard.swipableCard
+import com.google.accompanist.flowlayout.FlowMainAxisAlignment
+import com.google.accompanist.flowlayout.FlowRow
+import com.google.accompanist.flowlayout.SizeMode
 import edu.temple.bistro.R
 import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.ui.friends.ProfilePicture
 import edu.temple.bistro.ui.theme.Inter
 
-@OptIn(ExperimentalSwipeableCardApi::class)
+@OptIn(ExperimentalSwipeableCardApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
     var sizeImage by remember { mutableStateOf(IntSize.Zero) }
@@ -54,8 +57,8 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
     Card(
         elevation = 0.dp,
         modifier = Modifier
-            .height(482.dp)
-            .width(325.dp)
+            .height(570.dp)
+            .width(370.dp)
             .swipableCard(
                 state = state,
                 blockedDirections = listOf(com.alexstyl.swipeablecard.Direction.Down),
@@ -110,22 +113,25 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
             ) {
                 Text(
                     text = data.name,
-                    fontSize = 30.sp,
+                    fontSize = 37.sp,
                     color = Color.White,
                     fontFamily = Inter,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "${data.location?.city.toString()}, ${data.location?.state.toString()}",
-                    fontSize = 23.sp,
+                    fontSize = 22.sp,
                     color = Color.White,
                     fontFamily = Inter,
                     fontStyle = FontStyle.Italic,
-                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 7.dp),
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp),
                 )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp).height(IntrinsicSize.Min)
+                FlowRow(
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp),
+                    mainAxisAlignment = FlowMainAxisAlignment.Start,
+                    mainAxisSize = SizeMode.Wrap,
+                    mainAxisSpacing = 5.dp,
+                    crossAxisSpacing = 6.dp,
                 ) {
                     data.categories.forEach { category -> CategoryChip(category.title, {}) }
                 }

@@ -28,7 +28,7 @@ fun CategoryChip(category: String, onClick: () -> Unit) {
             .background(Color.White)
             .padding(10.dp, 2.dp)
     ) {
-        Text(text = category.lowercase(), fontSize = 12.sp, fontFamily = Inter, fontWeight = FontWeight.Normal)
+        Text(text = category.lowercase(), fontSize = 15.sp, fontFamily = Inter, fontWeight = FontWeight.Normal)
     }
 }
 

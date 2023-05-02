@@ -40,7 +40,7 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
             .fillMaxWidth()
             .fillMaxHeight()
             .padding(innerPadding),
-        verticalArrangement = Arrangement.Bottom
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
 //            val states = restaurants.reversed()
 //                .map { it to rememberSwipeableCardState() }
