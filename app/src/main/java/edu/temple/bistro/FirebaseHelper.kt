@@ -1,10 +1,12 @@
 package edu.temple.bistro
 
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
 import kotlin.random.Random.Default.nextInt
 
@@ -12,7 +14,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
 
     companion object {
         enum class FriendState {
-            ACTIVE, PENDING
+            ACTIVE, PENDING_SENT, PENDING_RECEIVED
         }
     }
 
@@ -53,7 +55,6 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             }
     }
 
-
     fun addLikedPlace(username: String, placeID: String, place: Place) {
         val userRef = db.getReference("users").child(username)
         val likedPlacesRef = userRef.child("liked_places")
@@ -62,27 +63,13 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             .addOnFailureListener {
                 Log.d("ERROR", "Liking place $placeID unsuccessful.")
             }
+        //TODO: add liked categories logic
     }
 
-    //does not work
     fun removeLikedPlace(username: String, placeID: String) {
         val userRef = db.getReference("users").child(username)
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val userData = snapshot.getValue(User::class.java)
-                if (userData != null) {
-                    val friends = userData.liked_places
-                    val updatedFriends = friends.filterKeys { it != placeID }
-                    userRef.child("liked_places").setValue(updatedFriends)
-                        .addOnFailureListener {
-                            Log.d("ERROR", "Removing liked place $placeID unsuccessful.")
-                        }
-                }
-            }
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("ERROR", error.toString())
-            }
-        })
+        val placesRef = userRef.child("liked_places")
+        placesRef.child(placeID).setValue(null)
     }
 
     fun addDislikedPlace(username: String, placeID: String, place: Place) {
@@ -94,56 +81,53 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         }
     }
 
-    //TODO: does not work
-//    fun removeDislikedPlace(username: String, placeID: String) {
-//        val userRef = db.getReference("users").child(username)
-//        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                val userData = snapshot.getValue(User::class.java)
-//                if (userData != null) {
-//                    val friends = userData.disliked_places
-//                    val updatedFriends = friends.filterKeys { it != placeID }
-//                    userRef.child("disliked_places").setValue(updatedFriends)
-//                        .addOnFailureListener {
-//                            Log.d("ERROR", "Removing disliked place $placeID unsuccessful.")
-//                        }
-//                }
-//            }
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.d("ERROR", error.toString())
-//            }
-//        })
-//    }
+    fun removeDislikedPlace(username: String, placeID: String) {
+        val userRef = db.getReference("users").child(username)
+        val placesRef = userRef.child("disliked_places")
+        placesRef.child(placeID).setValue(null)
+    }
 
     fun addFriend(username: String, friend: Friend) {
         val userRef = db.getReference("users").child(username)
-        val friendRef = userRef.child("friends")
-        val newPlaceRef = friendRef.child(friend.username)
-        newPlaceRef.setValue(friend)
-            .addOnFailureListener {
-                Log.d("ERROR", "Adding friend ${friend.username} unsuccessful.")
+        val friendsRef = userRef.child("friends")
+        val userNewFriendRef = friendsRef.child(friend.username)
+
+        val friendRef = db.getReference("users").child(friend.username)
+        val friendFriendsRef = friendRef.child("friends")
+        val friendNewFriendRef = friendFriendsRef.child(username)
+
+        var userHasFriend = false
+        var friendHasUser = false
+
+        runBlocking {
+            checkFriendsList(username, friend.username) { result ->
+                userHasFriend = result
+            }
+
+            checkFriendsList(friend.username, username) { result ->
+                friendHasUser = result
+            }
         }
+
+        if(!userHasFriend && !friendHasUser) {
+            userNewFriendRef.setValue(Friend(friend.username, FriendState.PENDING_SENT.name))
+            friendNewFriendRef.setValue(Friend(username, FriendState.PENDING_RECEIVED.name))
+        } else {
+            userNewFriendRef.setValue(Friend(friend.username, FriendState.ACTIVE.name))
+            friendNewFriendRef.setValue(Friend(username, FriendState.ACTIVE.name))
+        }
+
     }
 
-    //TODO: does not work
-//    fun removeFriend(username: String, friendUsername: String) {
-//        val userRef = db.getReference("users").child(username)
-//        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                val userData = snapshot.getValue(User::class.java)
-//                if (userData != null) {
-//                    val friends = userData.friends
-//                    val updatedFriends = friends.filterKeys { it != friendUsername }
-//                    userRef.child("friends").setValue(updatedFriends)
-//                        .addOnSuccessListener {}
-//                        .addOnFailureListener {}
-//                }
-//            }
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.d("ERROR", "Removing friend $friendUsername unsuccessful.")
-//            }
-//        })
-//    }
+    fun removeFriend(username: String, friendUsername: String) {
+        val userRef = db.getReference("users").child(username)
+        val friendsRef = userRef.child("friends")
+        friendsRef.child(friendUsername).setValue(null)
+
+        val friendRef = db.getReference("users").child(friendUsername)
+        val friendsFriendsRef = friendRef.child("friends")
+        friendsFriendsRef.child(username).setValue(null)
+    }
 
     fun createGroup(username: String) {
         val userRef = db.getReference("users").child(username)
@@ -255,8 +239,18 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         })
     }
 
-    fun getFilterCriteria() {
-        //TODO: implement
+    fun getFilterCriteria(username: String, callback: (FilterCriteria) -> Unit) {
+        val userRef = db.getReference("users").child(username)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val filterCriteriaSnapshot = dataSnapshot.child("filter_criteria")
+                    val filterCriteria = filterCriteriaSnapshot.getValue(FilterCriteria::class.java)
+                    filterCriteria?.let { callback(it) }
+                }
+            }
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
     }
 
     fun getFriends(username: String, callback: (List<Friend>) -> Unit) {
@@ -347,6 +341,27 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             override fun onCancelled(error: DatabaseError) {
                 Log.d("ERROR", "Could not retrieve disliked places.")
             }
+        })
+    }
+
+    fun checkFriendsList(username: String, searchUsername: String, callback: (Boolean) -> Unit) {
+        val userRef = db.getReference("users").child(username)
+        val friendsRef = userRef.child("friends")
+
+        friendsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                var usernameFound = false
+                for (friendSnapshot in snapshot.children) {
+                    val friend = friendSnapshot.getValue(Friend::class.java)
+                    if (friend?.username == username) {
+                        usernameFound = true
+                        break
+                    }
+                }
+                callback(usernameFound)
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
         })
     }
 }
