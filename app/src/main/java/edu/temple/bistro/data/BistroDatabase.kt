@@ -15,7 +15,8 @@ import edu.temple.bistro.data.model.RestaurantCategoryReference
 
 @Database(
     entities = [Restaurant::class, Category::class, RestaurantCategoryReference::class, AppState::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class BistroDatabase : RoomDatabase() {
