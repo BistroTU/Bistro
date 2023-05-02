@@ -344,7 +344,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         })
     }
 
-    fun checkFriendsList(username: String, searchUsername: String, callback: (Boolean) -> Unit) {
+    private fun checkFriendsList(username: String, searchUsername: String, callback: (Boolean) -> Unit) {
         val userRef = db.getReference("users").child(username)
         val friendsRef = userRef.child("friends")
 
@@ -353,7 +353,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
                 var usernameFound = false
                 for (friendSnapshot in snapshot.children) {
                     val friend = friendSnapshot.getValue(Friend::class.java)
-                    if (friend?.username == username) {
+                    if (friend?.username == searchUsername) {
                         usernameFound = true
                         break
                     }
