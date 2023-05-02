@@ -77,6 +77,9 @@ class MainActivity : ComponentActivity() {
 
             BistroTheme {
                 Scaffold(
+                    topBar = {
+                      Text("Hello")
+                    },
                     bottomBar = {
                         BottomNavbar(navController = navController, items = bottomNavigationItems)
                     },
