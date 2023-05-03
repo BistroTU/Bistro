@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexstyl.swipeablecard.Direction
 import edu.temple.bistro.ui.BistroViewModel
+import edu.temple.bistro.ui.navigation.HomeTopBar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -51,6 +52,8 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
             }
 
             val scope = rememberCoroutineScope()
+
+            HomeTopBar(viewModel = viewModel)
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Box {
                     states.forEach { (restaurant, state) ->
