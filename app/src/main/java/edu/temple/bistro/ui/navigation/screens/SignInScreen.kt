@@ -11,12 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import edu.temple.bistro.ui.BistroViewModel
+import edu.temple.bistro.ui.navigation.NavigationItem
 import edu.temple.bistro.ui.signin.SignInViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SignInScreen(bistroViewModel: BistroViewModel, signInViewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(navController: NavHostController, bistroViewModel: BistroViewModel, signInViewModel: SignInViewModel = hiltViewModel()) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
@@ -54,6 +56,7 @@ fun SignInScreen(bistroViewModel: BistroViewModel, signInViewModel: SignInViewMo
             if (state.value?.isSuccess?.isNotEmpty() == true) {
                 val success = state.value?.isSuccess
                 Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
+                navController.navigate(NavigationItem.HomeScreen.route)
             }
         }
     }

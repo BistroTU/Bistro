@@ -34,7 +34,7 @@ fun Navigation(navController: NavHostController, viewModel: BistroViewModel) {
         composable(
             route = NavigationItem.SignInScreen.route,
         ) {
-            SignInScreen(viewModel)
+            SignInScreen(navController, viewModel)
         }
         composable(
             route = NavigationItem.FriendsScreen.route

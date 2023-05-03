@@ -72,18 +72,18 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun dbTest() {
-        val username = "username"
-        val placeId1 = "place-" + UUID.randomUUID().toString()
-        val placeId2 = "place-" + UUID.randomUUID().toString()
-        viewModel.firebase.addUser(username,"John", "Doe")
-        viewModel.firebase.addLikedPlace(username, placeId1, Place("Mama Meatball", 1))
-        viewModel.firebase.addLikedPlace(username, placeId2, Place("Mama!! Meatball!!", 2))
-        viewModel.firebase.createGroup(username)
-        viewModel.firebase.createGroup(username)
-        viewModel.firebase.setAgeBoolean(username, false)
-        viewModel.firebase.getLikedPlaces("username") { likedPlaces ->
-            Log.d("LIKED PLACES", likedPlaces.toString())
-        }
+//        val username = "username"
+//        val placeId1 = "place-" + UUID.randomUUID().toString()
+//        val placeId2 = "place-" + UUID.randomUUID().toString()
+//        viewModel.firebase.addUser(username,"John", "Doe")
+//        viewModel.firebase.addLikedPlace(username, placeId1, Place("Mama Meatball", 1))
+//        viewModel.firebase.addLikedPlace(username, placeId2, Place("Mama!! Meatball!!", 2))
+//        viewModel.firebase.createGroup(username)
+//        viewModel.firebase.createGroup(username)
+//        viewModel.firebase.setAgeBoolean(username, false)
+//        viewModel.firebase.getLikedPlaces("username") { likedPlaces ->
+//            Log.d("LIKED PLACES", likedPlaces.toString())
+//        }
     }
 
     private fun requestLocationPermission() {

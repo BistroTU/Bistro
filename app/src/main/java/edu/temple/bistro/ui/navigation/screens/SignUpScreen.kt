@@ -46,7 +46,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
         Button(
             onClick = {
                 scope.launch {
-                    signUpViewModel.signUpUser(firstname, lastname, email, password, bistroViewModel)
+                    signUpViewModel.signUpUser(firstName, lastName, email, password, bistroViewModel)
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -68,6 +68,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
             if (state.value?.isSuccess?.isNotEmpty() == true) {
                 val success = state.value?.isSuccess
                 Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
+                navController.navigate(NavigationItem.HomeScreen.route)
             }
         }
     }
