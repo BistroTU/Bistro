@@ -20,8 +20,8 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         }
     }
 
-    fun addUser(username: String, firstName: String, lastName: String) {
-        val userRef = db.reference.child("users").child(username)
+    fun addUser(uid: String, username: String, firstName: String, lastName: String) {
+        val userRef = db.reference.child("users").child(uid)
         val userData = mapOf(
             "first_name" to firstName,
             "last_name" to lastName,
@@ -203,6 +203,24 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         val randomLetter = alphabet[randomIndex]
         val randomNumber = Random(System.currentTimeMillis()).nextInt(1000,10000)
         return "${randomLetter}${randomNumber}"
+    }
+
+    fun getUser(username: String, callback: (User?) -> Unit) {
+        val userRef = db.getReference("users").child(username)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val user = dataSnapshot.getValue(User::class.java)
+                    callback(user)
+                } else {
+                    callback(null)
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(null)
+            }
+        })
     }
 
     fun getName(username: String, callback: (String?) -> Unit) {
