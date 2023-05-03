@@ -1,35 +1,28 @@
 package edu.temple.bistro.ui.navigation.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import edu.temple.bistro.ui.BistroViewModel
-import edu.temple.bistro.ui.navigation.NavigationItem
-import edu.temple.bistro.ui.signup.SignUpViewModel
+import edu.temple.bistro.ui.signin.SignInViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewModel, signUpViewModel: SignUpViewModel = hiltViewModel()) {
-    var email by rememberSaveable { mutableStateOf("")}
-    var password by rememberSaveable { mutableStateOf("")}
+fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val state = signUpViewModel.signUpState.collectAsState(initial = null)
+    val state = viewModel.signInState.collectAsState(initial = null)
 
     Column(
         modifier = Modifier
@@ -38,23 +31,19 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
     ) {
         TextField(modifier = Modifier.fillMaxWidth(), value = email, onValueChange = { email = it }, placeholder = { Text(text = "Email") })
         Spacer( modifier = Modifier.height(16.dp))
-        TextField(modifier = Modifier.fillMaxWidth(), value = password, onValueChange = { password = it }, placeholder = { Text(text = "Password")})
+        TextField(modifier = Modifier.fillMaxWidth(), value = password, onValueChange = { password = it }, placeholder = { Text(text = "Password") })
         Button(
             onClick = {
                 scope.launch {
-                    signUpViewModel.signUpUser(email, password)
+                    viewModel.signInUser(email, password)
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 modifier = Modifier.padding(7.dp),
-                text = "Sign Up"
+                text = "Sign In"
             )
-        }
-        Row(horizontalArrangement = Arrangement.Center) {
-            Text("Already have an account? ")
-            Text("Click here to sign in", color = Color.Blue, modifier = Modifier.clickable { navController.navigate(NavigationItem.SignInScreen.route) })
         }
 
     }
