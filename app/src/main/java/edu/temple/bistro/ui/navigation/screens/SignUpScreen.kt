@@ -23,6 +23,8 @@ import edu.temple.bistro.ui.signup.SignUpViewModel
 
 @Composable
 fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewModel, signUpViewModel: SignUpViewModel = hiltViewModel()) {
+    var firstName by rememberSaveable { mutableStateOf("") }
+    var lastName by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("")}
     var password by rememberSaveable { mutableStateOf("")}
 
@@ -36,13 +38,15 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
             .fillMaxSize()
             .padding(start = 30.dp, end = 30.dp),
     ) {
+        TextField(modifier = Modifier.fillMaxWidth(), value = firstName, onValueChange = { firstName = it }, placeholder = { Text(text = "First Name") })
+        TextField(modifier = Modifier.fillMaxWidth(), value = lastName, onValueChange = { lastName = it }, placeholder = { Text(text = "Last Name") })
         TextField(modifier = Modifier.fillMaxWidth(), value = email, onValueChange = { email = it }, placeholder = { Text(text = "Email") })
         Spacer( modifier = Modifier.height(16.dp))
         TextField(modifier = Modifier.fillMaxWidth(), value = password, onValueChange = { password = it }, placeholder = { Text(text = "Password")})
         Button(
             onClick = {
                 scope.launch {
-                    signUpViewModel.signUpUser(email, password)
+                    signUpViewModel.signUpUser(firstName, lastName, email, password)
                 }
             },
             modifier = Modifier.fillMaxWidth()
