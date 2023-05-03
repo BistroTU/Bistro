@@ -2,6 +2,7 @@ package edu.temple.bistro.ui
 
 import android.app.Application
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -28,7 +29,7 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
 
     val search = MutableStateFlow(RestaurantSearchBuilder())
     val location = MutableStateFlow<Location?>(null)
-    val currentUser = MutableStateFlow<FirebaseUser?>(null)
+    val currentUser = MutableStateFlow(FirebaseAuth.getInstance().currentUser)
 
     private val _friends = MutableStateFlow<List<Friend>?>(null)
 
@@ -53,6 +54,7 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             currentUser.collect {
                 if (it == null) return@collect
+                Log.d("BistroVM", it.toString())
                 firebase.getFriends(it.uid, this@BistroViewModel::friendsListCallback)
             }
         }

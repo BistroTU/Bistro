@@ -32,6 +32,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
     val context = LocalContext.current
 
     val state = signUpViewModel.signUpState.collectAsState(initial = null)
+    val user = bistroViewModel.currentUser.collectAsState()
 
     Column(
         modifier = Modifier
@@ -78,6 +79,11 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
                 val error = state.value?.isError
                 Toast.makeText(context, "$error", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+    LaunchedEffect(key1 = user.value) {
+        if (user.value != null) {
+            navController.navigate(NavigationItem.HomeScreen.route)
         }
     }
 }
