@@ -133,7 +133,7 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
                     mainAxisSpacing = 5.dp,
                     crossAxisSpacing = 6.dp,
                 ) {
-                    data.categories.forEach { category -> CategoryChip(category.title, {}) }
+                    data.categories.forEach { category -> CategoryChip(category.title, false, {}) }
                 }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(7.dp)

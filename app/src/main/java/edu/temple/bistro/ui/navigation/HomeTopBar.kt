@@ -1,6 +1,7 @@
 package edu.temple.bistro.ui.navigation
 
 import android.location.Geocoder
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material.icons.filled.Filter1
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,8 +24,9 @@ import edu.temple.bistro.ui.theme.BistroRed
 import edu.temple.bistro.ui.theme.Inter
 
 @Composable
-fun HomeTopBar(viewModel: BistroViewModel) {
+fun HomeTopBar(viewModel: BistroViewModel, isFilterMenuOpen: MutableState<Boolean>) {
     val location = viewModel.location.collectAsState()
+    val iconTint = if(isFilterMenuOpen.value) BistroRed else Color.Gray
     if (location.value != null) {
         val address = Geocoder(LocalContext.current).getFromLocation(
             location.value!!.latitude,
@@ -37,7 +40,7 @@ fun HomeTopBar(viewModel: BistroViewModel) {
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-            Icon(Icons.Filled.FilterAlt, "filter", tint = BistroRed)
+            Icon(Icons.Filled.FilterAlt, "filter", tint = iconTint, modifier = Modifier.clickable { isFilterMenuOpen.value = !isFilterMenuOpen.value })
         }
     }
 }
