@@ -8,6 +8,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.Log
@@ -169,6 +170,14 @@ class MainActivity : ComponentActivity() {
             val callback = object : ConnectivityManager.NetworkCallback() {
                 override fun onLost(network: Network) {
                     isOnline.value = false
+                }
+
+                override fun onUnavailable() {
+                    isOnline.value = false
+                }
+
+                override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                    isOnline.value = true
                 }
 
                 override fun onAvailable(network: Network) {
