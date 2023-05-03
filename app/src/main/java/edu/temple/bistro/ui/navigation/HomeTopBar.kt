@@ -24,9 +24,20 @@ import edu.temple.bistro.ui.theme.Inter
 @Composable
 fun HomeTopBar(viewModel: BistroViewModel) {
     val location = viewModel.location.collectAsState()
-    val address = Geocoder(LocalContext.current).getFromLocation(location.value!!.latitude, location.value!!.longitude, 1);
-    Row(modifier = Modifier.padding(15.dp, 0.dp)) {
-        Text(address!!.get(0).locality, fontFamily = Inter, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        Icon(Icons.Filled.FilterAlt, "filter", tint = BistroRed)
+    if (location.value != null) {
+        val address = Geocoder(LocalContext.current).getFromLocation(
+            location.value!!.latitude,
+            location.value!!.longitude,
+            1
+        );
+        Row(modifier = Modifier.padding(15.dp, 0.dp)) {
+            Text(
+                address!!.get(0).locality,
+                fontFamily = Inter,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Icon(Icons.Filled.FilterAlt, "filter", tint = BistroRed)
+        }
     }
 }
