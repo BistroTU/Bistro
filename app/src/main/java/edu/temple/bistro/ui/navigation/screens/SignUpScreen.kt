@@ -42,7 +42,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
         Button(
             onClick = {
                 scope.launch {
-                    signUpViewModel.signUpUser(email, password)
+                    signUpViewModel.signUpUser(email, password, bistroViewModel)
                 }
             },
             modifier = Modifier.fillMaxWidth()

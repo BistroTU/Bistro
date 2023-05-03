@@ -41,12 +41,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        dbTest()
+
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener {}
 
         viewModel = ViewModelProvider(this)[BistroViewModel::class.java]
+
+        dbTest()
 
         requestLocationPermission()
 

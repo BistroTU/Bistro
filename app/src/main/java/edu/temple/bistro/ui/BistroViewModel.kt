@@ -35,13 +35,13 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
     val friends
         get() = _friends.asStateFlow()
 
-    lateinit var state: StateFlow<AppState?>
+    var state: StateFlow<AppState?>? = null
     init {
         viewModelScope.launch {
             state = yelpRepository.state.stateIn(viewModelScope)
             location.collect {
                 if (it == null) return@collect
-                if (yelpRepository.newRestaurants.first().isEmpty() && state.value?.searchParams?.isBlank() != false) {
+                if (yelpRepository.newRestaurants.first().isEmpty()) {
                     search.value = RestaurantSearchBuilder()
                         .setLatitude(it.latitude)
                         .setLongitude(it.longitude)
@@ -53,7 +53,7 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             currentUser.collect {
                 if (it == null) return@collect
-                firebase.getFriends(it.email!!, this@BistroViewModel::friendsListCallback)
+                firebase.getFriends(it.uid, this@BistroViewModel::friendsListCallback)
             }
         }
     }

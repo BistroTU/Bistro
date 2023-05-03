@@ -11,18 +11,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.signin.SignInViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(bistroViewModel: BistroViewModel, signInViewModel: SignInViewModel = hiltViewModel()) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val state = viewModel.signInState.collectAsState(initial = null)
+    val state = signInViewModel.signInState.collectAsState(initial = null)
 
     Column(
         modifier = Modifier
@@ -35,7 +36,7 @@ fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
         Button(
             onClick = {
                 scope.launch {
-                    viewModel.signInUser(email, password)
+                    signInViewModel.signInUser(email, password, bistroViewModel)
                 }
             },
             modifier = Modifier.fillMaxWidth()

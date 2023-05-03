@@ -36,7 +36,7 @@ fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
         Button(
             onClick = {
                 scope.launch {
-                    viewModel.signInUser(email, password)
+                    //viewModel.signInUser(email, password)
                 }
             },
             modifier = Modifier.fillMaxWidth()
