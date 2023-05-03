@@ -11,18 +11,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import edu.temple.bistro.ui.BistroViewModel
+import edu.temple.bistro.ui.navigation.NavigationItem
 import edu.temple.bistro.ui.signin.SignInViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(navController: NavHostController, bistroViewModel: BistroViewModel, signInViewModel: SignInViewModel = hiltViewModel()) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val state = viewModel.signInState.collectAsState(initial = null)
+    val state = signInViewModel.signInState.collectAsState(initial = null)
 
     Column(
         modifier = Modifier
@@ -35,7 +38,7 @@ fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
         Button(
             onClick = {
                 scope.launch {
-                    viewModel.signInUser(email, password)
+                    signInViewModel.signInUser(email, password, bistroViewModel)
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -53,6 +56,7 @@ fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
             if (state.value?.isSuccess?.isNotEmpty() == true) {
                 val success = state.value?.isSuccess
                 Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
+                navController.navigate(NavigationItem.HomeScreen.route)
             }
         }
     }

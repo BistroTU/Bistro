@@ -32,6 +32,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
     val context = LocalContext.current
 
     val state = signUpViewModel.signUpState.collectAsState(initial = null)
+    val user = bistroViewModel.currentUser.collectAsState()
 
     Column(
         modifier = Modifier
@@ -46,7 +47,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
         Button(
             onClick = {
                 scope.launch {
-                    signUpViewModel.signUpUser(firstName, lastName, email, password)
+                    signUpViewModel.signUpUser(firstName, lastName, email, password, bistroViewModel)
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -68,6 +69,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
             if (state.value?.isSuccess?.isNotEmpty() == true) {
                 val success = state.value?.isSuccess
                 Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
+                navController.navigate(NavigationItem.HomeScreen.route)
             }
         }
     }
@@ -77,6 +79,11 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
                 val error = state.value?.isError
                 Toast.makeText(context, "$error", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+    LaunchedEffect(key1 = user.value) {
+        if (user.value != null) {
+            navController.navigate(NavigationItem.HomeScreen.route)
         }
     }
 }

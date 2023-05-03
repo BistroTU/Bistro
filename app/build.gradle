@@ -96,7 +96,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
     //Google auth dependency
-    implementation 'com.google.android.gms:play-services-auth:20.4.0'
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
 
     implementation 'com.alexstyl.swipeablecard:swipeablecard:0.1.0'
 

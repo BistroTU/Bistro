@@ -21,17 +21,12 @@ import com.google.firebase.ktx.Firebase
 import androidx.core.content.ContextCompat.checkSelfPermission
 import dagger.hilt.android.AndroidEntryPoint
 import edu.temple.bistro.ui.navigation.*
-import edu.temple.bistro.ui.restaurant.RestaurantCard
-import edu.temple.bistro.ui.restaurant.RestaurantData
 import edu.temple.bistro.ui.theme.BistroTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
-import edu.temple.bistro.ui.navigation.screens.SignUpScreen
-import edu.temple.bistro.ui.signin.SignInScreen
 import java.util.*
 
 @AndroidEntryPoint
@@ -40,22 +35,20 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationManager: LocationManager
     private lateinit var locationListener: LocationListener
     private lateinit var viewModel: BistroViewModel
-    private val database = Firebase.database.apply {
-        setPersistenceEnabled(true)
-    }
-    private val helper = FirebaseHelper(database)
     private var requestTwice = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        dbTest()
+
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener {}
 
         viewModel = ViewModelProvider(this)[BistroViewModel::class.java]
+
+        dbTest()
 
         requestLocationPermission()
 
@@ -84,16 +77,18 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun dbTest() {
-        val username = "username"
-        val placeId1 = "place-" + UUID.randomUUID().toString()
-        val placeId2 = "place-" + UUID.randomUUID().toString()
-        helper.addUser(username, username,"John", "Doe")
-        helper.createGroup(username)
-        helper.createGroup(username)
-        helper.setAgeBoolean(username, false)
-        helper.getUser("testtest") { user ->
-            Log.d("USER", user.toString())
-        }
+//        val username = "username"
+//        val placeId1 = "place-" + UUID.randomUUID().toString()
+//        val placeId2 = "place-" + UUID.randomUUID().toString()
+//        viewModel.firebase.addUser(username,"John", "Doe")
+//        viewModel.firebase.addLikedPlace(username, placeId1, Place("Mama Meatball", 1))
+//        viewModel.firebase.addLikedPlace(username, placeId2, Place("Mama!! Meatball!!", 2))
+//        viewModel.firebase.createGroup(username)
+//        viewModel.firebase.createGroup(username)
+//        viewModel.firebase.setAgeBoolean(username, false)
+//        viewModel.firebase.getLikedPlaces("username") { likedPlaces ->
+//            Log.d("LIKED PLACES", likedPlaces.toString())
+//        }
     }
 
     private fun requestLocationPermission() {
