@@ -24,10 +24,7 @@ import edu.temple.bistro.ui.navigation.*
 import edu.temple.bistro.ui.theme.BistroTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,8 +49,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener {}
 
@@ -68,29 +63,36 @@ class MainActivity : ComponentActivity() {
             OfflineRedirector(
                 cm = cm,
                 redirectComposable = { OfflineScreen() },
-                content = { MainUI() }
-            )
+                content = {
+                    val navController = rememberNavController()
 
-            val user = viewModel.currentUser.collectAsState()
-            var startScreen = NavigationItem.SignUpScreen.route
+                    val bottomNavigationItems = listOf(
+                        NavigationItem.HomeScreen,
+                        NavigationItem.FriendsScreen,
+                        NavigationItem.SettingsScreen
+                    )
 
-            if (user.value != null) {
-                Log.d("User: ", user.value.toString())
-                startScreen = NavigationItem.HomeScreen.route
-            }
+                    val user = viewModel.currentUser.collectAsState()
+                    var startScreen = NavigationItem.SignUpScreen.route
 
-            BistroTheme {
-                Scaffold(
-                    topBar = {
-                      HomeTopBar(viewModel = viewModel)
-                    },
-                    bottomBar = {
-                        BottomNavbar(navController = navController, items = bottomNavigationItems)
-                    },
-                ) { innerPadding ->
-                    Navigation(navController, startScreen, viewModel, innerPadding)
+                    if (user.value != null) {
+                        Log.d("User: ", user.value.toString())
+                        startScreen = NavigationItem.HomeScreen.route
+                    }
+                    BistroTheme {
+                        Scaffold(
+                            topBar = {
+                                HomeTopBar(viewModel = viewModel)
+                            },
+                            bottomBar = {
+                                BottomNavbar(navController = navController, items = bottomNavigationItems)
+                            },
+                        ) { innerPadding ->
+                            Navigation(navController, startScreen, viewModel, innerPadding)
+                        }
+                    }
                 }
-            }
+            )
         }
     }
 
@@ -153,25 +155,6 @@ class MainActivity : ComponentActivity() {
                     finish()
                 }
             }
-        }
-    }
-
-    @Composable
-    fun MainUI() {
-        val navController = rememberNavController()
-
-        val bottomNavigationItems = listOf(
-            NavigationItem.HomeScreen,
-            NavigationItem.FriendsScreen,
-            NavigationItem.SettingsScreen
-        )
-        Scaffold(
-            bottomBar = {
-                BottomNavbar(navController = navController, items = bottomNavigationItems)
-            },
-        ) {
-            it
-            Navigation(navController, viewModel)
         }
     }
 
