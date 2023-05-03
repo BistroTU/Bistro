@@ -1,8 +1,6 @@
 package edu.temple.bistro
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.text.resolveDefaults
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -10,7 +8,6 @@ import com.google.firebase.database.ValueEventListener
 import edu.temple.bistro.data.model.Restaurant
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
-import kotlin.random.Random.Default.nextInt
 
 class FirebaseHelper(private val db: FirebaseDatabase) {
 
@@ -57,7 +54,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             }
     }
 
-    fun addLikedPlace(username: String, likedCategories: Set<String>, restaurant: Restaurant) {
+    fun addLikedPlace(username: String, restaurant: Restaurant) {
         val userRef = db.getReference("users").child(username)
         val likedPlacesRef = userRef.child("liked_places")
         val likedCategoriesRef = userRef.child("liked_categories")
@@ -66,11 +63,13 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             .addOnFailureListener {
                 Log.d("ERROR", "Liking place ${restaurant.id} unsuccessful.")
             }
-        var categorySet = likedCategories
-        for (category in restaurant.categories) {
-            categorySet = categorySet + category.alias
+        getLikedCategories(username) {
+            var newCategoryList = it
+            for (category in restaurant.categories) {
+                newCategoryList = newCategoryList + category.alias
+            }
+            likedCategoriesRef.setValue(newCategoryList)
         }
-        likedCategoriesRef.setValue(categorySet)
     }
 
     fun removeLikedPlace(username: String, restaurant: Restaurant) {
@@ -223,6 +222,24 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         })
     }
 
+    fun getUsername(uid: String, callback: (String?) -> Unit) {
+        val userRef = db.getReference("users").child(uid)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val username = dataSnapshot.child("username").getValue(String::class.java)
+                    callback(username)
+                } else {
+                    callback(null)
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(null)
+            }
+        })
+    }
+
     fun getName(username: String, callback: (String?) -> Unit) {
         val userRef = db.getReference("users").child(username)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -318,6 +335,31 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
                         }
                     }
                     callback(groupsList)
+                } else {
+                    callback(emptyList())
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(emptyList())
+            }
+        })
+    }
+
+    fun getLikedCategories(username: String, callback: (List<String>) -> Unit) {
+        val userRef = db.getReference("users").child(username)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val categoryList = mutableListOf<String>()
+                    val categorySnapshot = dataSnapshot.child("liked_categories")
+                    categorySnapshot.children.forEach { categorySnapshot ->
+                        val category = categorySnapshot.getValue(String::class.java)
+                        if (category != null) {
+                            categoryList.add(category)
+                        }
+                    }
+                    callback(categoryList)
                 } else {
                     callback(emptyList())
                 }
