@@ -59,8 +59,9 @@ class MainActivity : ComponentActivity() {
 
         requestLocationPermission()
 
+        val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
         setContent {
-            val cm = LocalContext.current.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             OfflineRedirector(
                 cm = cm,
                 redirectComposable = { OfflineScreen() },
@@ -186,7 +187,7 @@ class MainActivity : ComponentActivity() {
             }
             cm.registerNetworkCallback(NetworkRequest.Builder().build(), callback)
         }
-        if (isOnline.value) {
+        if (isOnline.value || cm.activeNetworkInfo?.isConnected ?: false) {
             content()
         } else {
             redirectComposable()
