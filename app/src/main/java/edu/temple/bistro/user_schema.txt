@@ -9,7 +9,7 @@
       "profile_picture": "string",
       "friends": {
         "$friend_uid": {
-          "name": "string",
+          "username": "string",
           "friend_status": "string"
         }
       },

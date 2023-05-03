@@ -55,7 +55,7 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
             currentUser.collect {
                 if (it == null) return@collect
                 Log.d("BistroVM", it.toString())
-                firebase.getFriends(it.uid, this@BistroViewModel::friendsListCallback)
+                firebase.getFriends(firebase.keyStr(it.email!!), this@BistroViewModel::friendsListCallback)
             }
         }
     }
@@ -65,6 +65,7 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun friendsListCallback(friends: List<Friend>) {
+        Log.d("FRIENDS", friends.toString())
         _friends.value = friends
     }
 }

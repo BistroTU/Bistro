@@ -27,7 +27,7 @@ class SignUpViewModel @Inject constructor(private val repository: AuthRepository
                 is Resource.Success -> {
                     _signUpState.send(SignInState(isSuccess = "Sign Up Success"))
                     val user = repository.firebaseAuth.currentUser
-                    bistroViewModel.firebase.addUser(user!!.uid, user.email!!, firstName, lastName)
+                    bistroViewModel.firebase.addUser(user!!.email!!, firstName, lastName)
                     bistroViewModel.currentUser.value = user
                 }
                 is Resource.Loading ->{
