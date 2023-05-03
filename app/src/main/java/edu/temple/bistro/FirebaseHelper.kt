@@ -1,8 +1,6 @@
 package edu.temple.bistro
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.text.resolveDefaults
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -10,7 +8,6 @@ import com.google.firebase.database.ValueEventListener
 import edu.temple.bistro.data.model.Restaurant
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
-import kotlin.random.Random.Default.nextInt
 
 class FirebaseHelper(private val db: FirebaseDatabase) {
 

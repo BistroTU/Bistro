@@ -14,19 +14,31 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import edu.temple.bistro.Place
 
 @Composable
-fun PlacesScreen(places: List<Place>) {
+fun PlacesScreen(title: String, places: List<Place>) {
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
-        places.forEach { place ->
-            Text(
-                text = place.name,
-                style = TextStyle(fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+        Text(
+            text = title,
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+        Column(modifier = Modifier.padding(start = 8.dp)) {
+            places.forEach { place ->
+                Text(
+                    text = place.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
         }
     }
 }
@@ -34,5 +46,5 @@ fun PlacesScreen(places: List<Place>) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    PlacesScreen(listOf(Place("Mission Taqueria",1),Place("Morimoto",2), Place("Charlie was a sinner.",1), Place("Sampan",2)))
+    PlacesScreen("Liked Places",listOf(Place("Mission Taqueria",1),Place("Morimoto",2), Place("Charlie was a sinner.",1), Place("Sampan",2)))
 }
