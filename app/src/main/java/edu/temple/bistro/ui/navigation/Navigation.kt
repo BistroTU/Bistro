@@ -12,11 +12,12 @@ import androidx.navigation.compose.composable
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
 import edu.temple.bistro.ui.navigation.screens.HomeScreen
+import edu.temple.bistro.ui.navigation.screens.SignInScreen
 import edu.temple.bistro.ui.navigation.screens.SignUpScreen
 
 @Composable
 fun Navigation(navController: NavHostController, viewModel: BistroViewModel) {
-    NavHost(navController = navController, startDestination = NavigationItem.HomeScreen.route) {
+    NavHost(navController = navController, startDestination = NavigationItem.SignUpScreen.route) {
         composable(route = NavigationItem.HomeScreen.route) {
             HomeScreen(navController, viewModel)
         }
@@ -28,7 +29,12 @@ fun Navigation(navController: NavHostController, viewModel: BistroViewModel) {
         composable(
             route = NavigationItem.SignUpScreen.route,
         ) {
-            SignUpScreen()
+            SignUpScreen(navController, viewModel)
+        }
+        composable(
+            route = NavigationItem.SignInScreen.route,
+        ) {
+            SignInScreen()
         }
 //        composable(
 //            route = NavigationItem.SettingsScreen.route + "/{name}",
