@@ -431,4 +431,35 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             override fun onCancelled(error: DatabaseError) {}
         })
     }
+
+    fun getCommonLikes(usernames: List<String>): Pair<List<Place>, List<String>> {
+        val likedPlacesLists = mutableListOf<List<Place>>()
+        val likedCategoriesLists = mutableListOf<List<String>>()
+
+        for (username in usernames) {
+            val userRef = FirebaseDatabase.getInstance().getReference("users").child(username)
+            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val user = snapshot.getValue(User::class.java)
+                    if (user != null) {
+                        likedPlacesLists.add(user.liked_places.values.toList())
+                        likedCategoriesLists.add(user.liked_categories.toList())
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("GETCOMMONLIKES", "Failed to read value.", error.toException())
+                }
+            })
+        }
+
+        val commonLikedPlaces = likedPlacesLists.reduce { acc, list ->
+            acc.intersect(list.toSet()).toList()
+        }
+        val commonLikedCategories = likedCategoriesLists.reduce { acc, list ->
+            acc.intersect(list.toSet()).toList()
+        }
+
+        return Pair(commonLikedPlaces, commonLikedCategories)
+    }
 }
