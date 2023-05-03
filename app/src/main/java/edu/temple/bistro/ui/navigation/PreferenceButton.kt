@@ -40,12 +40,11 @@ fun LikeButton(state: SwipeableCardState) {
         backgroundColor = Color(0xFFA2FA94),
         textColor = Color(0xFF5ABA4A),
         icon = Icons.Filled.ThumbUp,
-        {
-            scope.launch {
-                state.swipe(Direction.Right)
-            }
-        },
-    )
+    ) {
+        scope.launch {
+            state.swipe(Direction.Right)
+        }
+    }
 }
 
 @Composable
@@ -54,10 +53,10 @@ fun DislikeButton(state: SwipeableCardState) {
     PreferenceButton(
         backgroundColor = Color(0xFFF7AEAE),
         textColor = Color(0xFFDA5D5D),
-        icon = Icons.Filled.ThumbDown,
-        {
-            scope.launch {
-                state.swipe(Direction.Left)
-            }
-        })
+        icon = Icons.Filled.ThumbDown
+    ) {
+        scope.launch {
+            state.swipe(Direction.Left)
+        }
+    }
 }
