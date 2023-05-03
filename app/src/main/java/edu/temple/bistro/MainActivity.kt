@@ -4,34 +4,40 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material.Button
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import androidx.core.content.ContextCompat.checkSelfPermission
 import dagger.hilt.android.AndroidEntryPoint
 import edu.temple.bistro.ui.navigation.*
-import edu.temple.bistro.ui.restaurant.RestaurantCard
-import edu.temple.bistro.ui.restaurant.RestaurantData
-import edu.temple.bistro.ui.theme.BistroTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.runtime.collectAsState
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
-import edu.temple.bistro.ui.navigation.screens.SignUpScreen
-import edu.temple.bistro.ui.signin.SignInScreen
 import java.util.*
 
 @AndroidEntryPoint
@@ -46,7 +52,6 @@ class MainActivity : ComponentActivity() {
     private val helper = FirebaseHelper(database)
     private var requestTwice = false
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -60,21 +65,12 @@ class MainActivity : ComponentActivity() {
         requestLocationPermission()
 
         setContent {
-            val navController = rememberNavController()
-
-            val bottomNavigationItems = listOf(
-                NavigationItem.HomeScreen,
-                NavigationItem.FriendsScreen,
-                NavigationItem.SettingsScreen
+            val cm = LocalContext.current.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            OfflineRedirector(
+                cm = cm,
+                redirectComposable = { OfflineScreen() },
+                content = { MainUI() }
             )
-            Scaffold(
-                bottomBar = {
-                    BottomNavbar(navController = navController, items = bottomNavigationItems)
-                },
-            ) {
-                it
-                Navigation(navController, viewModel)
-            }
         }
     }
 
@@ -137,17 +133,67 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
+    @Composable
+    fun MainUI() {
+        val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    BistroTheme {
-        Greeting("Android")
+        val bottomNavigationItems = listOf(
+            NavigationItem.HomeScreen,
+            NavigationItem.FriendsScreen,
+            NavigationItem.SettingsScreen
+        )
+        Scaffold(
+            bottomBar = {
+                BottomNavbar(navController = navController, items = bottomNavigationItems)
+            },
+        ) {
+            it
+            Navigation(navController, viewModel)
+        }
     }
+
+    @Composable
+    fun OfflineRedirector(
+        cm: ConnectivityManager,
+        redirectComposable: @Composable () -> Unit,
+        content: @Composable () -> Unit
+    ) {
+        val isOnline = remember { mutableStateOf(false) }
+        LaunchedEffect(cm) {
+            val callback = object : ConnectivityManager.NetworkCallback() {
+                override fun onLost(network: Network) {
+                    isOnline.value = false
+                }
+
+                override fun onAvailable(network: Network) {
+                    isOnline.value = true
+                }
+            }
+            cm.registerNetworkCallback(NetworkRequest.Builder().build(), callback)
+        }
+        if (isOnline.value) {
+            content()
+        } else {
+            redirectComposable()
+        }
+    }
+
+    @Composable
+    fun OfflineScreen() {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Bistro needs internet access to work properly.",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+
 }
