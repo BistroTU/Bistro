@@ -10,101 +10,41 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import edu.temple.bistro.Place
 
 @Composable
-fun PlacesScreen(likedPlaces: List<Place>, seenPlaces: List<Place>) {
-    var selectedTabIndex by remember { mutableStateOf(0) }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            backgroundColor = MaterialTheme.colors.primary
-        ) {
-            Tab(
-                selected = selectedTabIndex == 0,
-                onClick = { selectedTabIndex = 0 }
-            ) {
-                Text(
-                    text = "Liked",
-                    color = if (selectedTabIndex == 0) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.6f)
-                )
-            }
-            Tab(
-                selected = selectedTabIndex == 1,
-                onClick = { selectedTabIndex = 1 }
-            ) {
-                Text(
-                    text = "Recently Viewed",
-                    color = if (selectedTabIndex == 1) MaterialTheme.colors.onPrimary else MaterialTheme.colors.onPrimary.copy(0.6f)
-                )
-            }
-        }
-
-        Column(modifier = Modifier.fillMaxSize()) {
-            if (selectedTabIndex == 0) {
-                LikedPlaceList(likedPlaces)
-            } else {
-                SeenPlaceList(seenPlaces)
-            }
-        }
-    }
-}
-
-@Composable
-fun LikedPlaceList(places: List<Place>) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Liked Places",
-            modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.h5
-        )
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            items(places) { place ->
-                PlaceListItem(place)
-            }
-        }
-    }
-}
-
-@Composable
-fun SeenPlaceList(places: List<Place>) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Recently Viewed Places",
-            modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.h5
-        )
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            items(places) { place ->
-                PlaceListItem(place)
-            }
-        }
-    }
-}
-
-@Composable
-fun PlaceListItem(place: Place) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+fun PlacesScreen(title: String, places: List<Place>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
-        // Add the UI elements for the place item here
-        Text(text = place.name)
-        // ...
+        Text(
+            text = title,
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+        Column(modifier = Modifier.padding(start = 8.dp)) {
+            places.forEach { place ->
+                Text(
+                    text = place.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    PlacesScreen(listOf(Place("Mission Taqueria",1),Place("Morimoto",2)), listOf(Place("Charlie was a sinner.",1),Place("Sampan",2)))
+    PlacesScreen("Liked Places",listOf(Place("Mission Taqueria",1),Place("Morimoto",2), Place("Charlie was a sinner.",1), Place("Sampan",2)))
 }
