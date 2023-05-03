@@ -220,6 +220,24 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         })
     }
 
+    fun getUsername(uid: String, callback: (String?) -> Unit) {
+        val userRef = db.getReference("users").child(uid)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val username = dataSnapshot.child("username").getValue(String::class.java)
+                    callback(username)
+                } else {
+                    callback(null)
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(null)
+            }
+        })
+    }
+
     fun getName(username: String, callback: (String?) -> Unit) {
         val userRef = db.getReference("users").child(username)
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
