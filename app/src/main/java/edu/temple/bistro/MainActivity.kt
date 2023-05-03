@@ -23,6 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import edu.temple.bistro.ui.navigation.*
 import edu.temple.bistro.ui.theme.BistroTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import edu.temple.bistro.ui.BistroViewModel
@@ -61,6 +62,14 @@ class MainActivity : ComponentActivity() {
                 NavigationItem.SettingsScreen
             )
 
+            val user = viewModel.currentUser.collectAsState()
+            var startScreen = NavigationItem.SignUpScreen.route
+
+            if (user.value != null) {
+                Log.d("User: ", user.value.toString())
+                startScreen = NavigationItem.HomeScreen.route
+            }
+
             BistroTheme {
                 Scaffold(
                     topBar = {
@@ -70,7 +79,7 @@ class MainActivity : ComponentActivity() {
                         BottomNavbar(navController = navController, items = bottomNavigationItems)
                     },
                 ) { innerPadding ->
-                    Navigation(navController, viewModel, innerPadding)
+                    Navigation(navController, startScreen, viewModel, innerPadding)
                 }
             }
         }
