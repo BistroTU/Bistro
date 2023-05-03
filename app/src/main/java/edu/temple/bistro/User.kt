@@ -9,7 +9,7 @@ data class User(
     val filter_criteria: FilterCriteria,
     val liked_places: Map<String, Place>,
     val disliked_places: Map<String, Place>,
-    val liked_categories: List<String>,
+    val liked_categories: Set<String>,
     val friends: Map<String, Friend>,
     val groups: List<String>
 )

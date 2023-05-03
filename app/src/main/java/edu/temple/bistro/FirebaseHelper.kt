@@ -2,10 +2,12 @@ package edu.temple.bistro
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.text.resolveDefaults
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import edu.temple.bistro.data.model.Restaurant
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
 import kotlin.random.Random.Default.nextInt
@@ -18,8 +20,8 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         }
     }
 
-    fun addUser(username: String, firstName: String, lastName: String) {
-        val userRef = db.reference.child("users").child(username)
+    fun addUser(uid: String, username: String, firstName: String, lastName: String) {
+        val userRef = db.reference.child("users").child(uid)
         val userData = mapOf(
             "first_name" to firstName,
             "last_name" to lastName,
@@ -55,36 +57,41 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             }
     }
 
-    fun addLikedPlace(username: String, placeID: String, place: Place) {
+    fun addLikedPlace(username: String, likedCategories: Set<String>, restaurant: Restaurant) {
         val userRef = db.getReference("users").child(username)
         val likedPlacesRef = userRef.child("liked_places")
-        val newPlaceRef = likedPlacesRef.child(placeID)
-        newPlaceRef.setValue(place)
+        val likedCategoriesRef = userRef.child("liked_categories")
+        val newPlaceRef = likedPlacesRef.child(restaurant.id)
+        newPlaceRef.setValue(Place(restaurant.name, System.currentTimeMillis()))
             .addOnFailureListener {
-                Log.d("ERROR", "Liking place $placeID unsuccessful.")
+                Log.d("ERROR", "Liking place ${restaurant.id} unsuccessful.")
             }
-        //TODO: add liked categories logic
+        var categorySet = likedCategories
+        for (category in restaurant.categories) {
+            categorySet = categorySet + category.alias
+        }
+        likedCategoriesRef.setValue(categorySet)
     }
 
-    fun removeLikedPlace(username: String, placeID: String) {
+    fun removeLikedPlace(username: String, restaurant: Restaurant) {
         val userRef = db.getReference("users").child(username)
         val placesRef = userRef.child("liked_places")
-        placesRef.child(placeID).setValue(null)
+        placesRef.child(restaurant.id).setValue(null)
     }
 
-    fun addDislikedPlace(username: String, placeID: String, place: Place) {
+    fun addDislikedPlace(username: String, restaurant: Restaurant) {
         val userRef = db.getReference("users").child(username)
         val dislikedPlacesRef = userRef.child("disliked_places")
-        val newPlaceRef = dislikedPlacesRef.child(placeID)
-        newPlaceRef.setValue(place).addOnFailureListener {
-            Log.d("ERROR", "Disliking place $placeID unsuccessful.")
+        val newPlaceRef = dislikedPlacesRef.child(restaurant.id)
+        newPlaceRef.setValue(Place(restaurant.name, System.currentTimeMillis())).addOnFailureListener {
+            Log.d("ERROR", "Disliking place ${restaurant.id} unsuccessful.")
         }
     }
 
-    fun removeDislikedPlace(username: String, placeID: String) {
+    fun removeDislikedPlace(username: String, restaurant: Restaurant) {
         val userRef = db.getReference("users").child(username)
         val placesRef = userRef.child("disliked_places")
-        placesRef.child(placeID).setValue(null)
+        placesRef.child(restaurant.id).setValue(null)
     }
 
     fun addFriend(username: String, friend: Friend) {
@@ -196,6 +203,24 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         val randomLetter = alphabet[randomIndex]
         val randomNumber = Random(System.currentTimeMillis()).nextInt(1000,10000)
         return "${randomLetter}${randomNumber}"
+    }
+
+    fun getUser(username: String, callback: (User?) -> Unit) {
+        val userRef = db.getReference("users").child(username)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val user = dataSnapshot.getValue(User::class.java)
+                    callback(user)
+                } else {
+                    callback(null)
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(null)
+            }
+        })
     }
 
     fun getName(username: String, callback: (String?) -> Unit) {
@@ -344,7 +369,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         })
     }
 
-    fun checkFriendsList(username: String, searchUsername: String, callback: (Boolean) -> Unit) {
+    private fun checkFriendsList(username: String, searchUsername: String, callback: (Boolean) -> Unit) {
         val userRef = db.getReference("users").child(username)
         val friendsRef = userRef.child("friends")
 
@@ -353,7 +378,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
                 var usernameFound = false
                 for (friendSnapshot in snapshot.children) {
                     val friend = friendSnapshot.getValue(Friend::class.java)
-                    if (friend?.username == username) {
+                    if (friend?.username == searchUsername) {
                         usernameFound = true
                         break
                     }
