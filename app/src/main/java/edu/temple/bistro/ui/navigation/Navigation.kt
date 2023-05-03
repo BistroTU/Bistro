@@ -1,6 +1,7 @@
-package edu.temple.bistro
+package edu.temple.bistro.ui.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -10,16 +11,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 //import edu.temple.Screen
 import edu.temple.bistro.ui.BistroViewModel
-import edu.temple.bistro.ui.navigation.NavigationItem
+import edu.temple.bistro.ui.navigation.screens.FriendsScreen
 import edu.temple.bistro.ui.navigation.screens.HomeScreen
 import edu.temple.bistro.ui.navigation.screens.SignInScreen
 import edu.temple.bistro.ui.navigation.screens.SignUpScreen
 
 @Composable
-fun Navigation(navController: NavHostController, viewModel: BistroViewModel) {
-    NavHost(navController = navController, startDestination = NavigationItem.SignUpScreen.route) {
+fun Navigation(navController: NavHostController, startScreen: String, viewModel: BistroViewModel, innerPadding: PaddingValues) {
+    NavHost(navController = navController, startDestination = startScreen) {
         composable(route = NavigationItem.HomeScreen.route) {
-            HomeScreen(navController, viewModel)
+            HomeScreen(navController, viewModel, innerPadding)
         }
         composable(
             route = NavigationItem.SettingsScreen.route,
@@ -34,7 +35,12 @@ fun Navigation(navController: NavHostController, viewModel: BistroViewModel) {
         composable(
             route = NavigationItem.SignInScreen.route,
         ) {
-            SignInScreen()
+            SignInScreen(navController, viewModel)
+        }
+        composable(
+            route = NavigationItem.FriendsScreen.route
+        ) {
+            FriendsScreen(navController, viewModel)
         }
 //        composable(
 //            route = NavigationItem.SettingsScreen.route + "/{name}",
