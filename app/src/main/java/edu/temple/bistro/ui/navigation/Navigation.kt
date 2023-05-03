@@ -17,8 +17,8 @@ import edu.temple.bistro.ui.navigation.screens.SignInScreen
 import edu.temple.bistro.ui.navigation.screens.SignUpScreen
 
 @Composable
-fun Navigation(navController: NavHostController, viewModel: BistroViewModel, innerPadding: PaddingValues) {
-    NavHost(navController = navController, startDestination = NavigationItem.SignUpScreen.route) {
+fun Navigation(navController: NavHostController, startScreen: String, viewModel: BistroViewModel, innerPadding: PaddingValues) {
+    NavHost(navController = navController, startDestination = startScreen) {
         composable(route = NavigationItem.HomeScreen.route) {
             HomeScreen(navController, viewModel, innerPadding)
         }
