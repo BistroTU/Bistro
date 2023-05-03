@@ -60,13 +60,18 @@ class MainActivity : ComponentActivity() {
                 NavigationItem.FriendsScreen,
                 NavigationItem.SettingsScreen
             )
-            Scaffold(
-                bottomBar = {
-                    BottomNavbar(navController = navController, items = bottomNavigationItems)
-                },
-            ) {
-                it
-                Navigation(navController, viewModel)
+
+            BistroTheme {
+                Scaffold(
+                    topBar = {
+                      HomeTopBar(viewModel = viewModel)
+                    },
+                    bottomBar = {
+                        BottomNavbar(navController = navController, items = bottomNavigationItems)
+                    },
+                ) { innerPadding ->
+                    Navigation(navController, viewModel, innerPadding)
+                }
             }
         }
     }
