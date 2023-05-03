@@ -81,8 +81,6 @@ class MainActivity : ComponentActivity() {
         val placeId1 = "place-" + UUID.randomUUID().toString()
         val placeId2 = "place-" + UUID.randomUUID().toString()
         helper.addUser(username,"John", "Doe")
-        helper.addLikedPlace(username, placeId1, Place("Mama Meatball", 1))
-        helper.addLikedPlace(username, placeId2, Place("Mama!! Meatball!!", 2))
         helper.createGroup(username)
         helper.createGroup(username)
         helper.setAgeBoolean(username, false)
