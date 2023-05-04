@@ -1,11 +1,8 @@
 package edu.temple.bistro.ui.restaurant
 
-import android.graphics.Paint.Align
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 //import androidx.compose.foundation.layout.BoxScopeInstance.matchParentSize
@@ -13,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 //import androidx.compose.foundation.layout.BoxScopeInstance.matchParentSize
 import androidx.compose.material.Card
 import androidx.compose.material.Text
-import androidx.compose.material.swipeable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,18 +18,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.alexstyl.swipeablecard.ExperimentalSwipeableCardApi
 import com.alexstyl.swipeablecard.SwipeableCardState
-import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import com.alexstyl.swipeablecard.swipableCard
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
@@ -42,6 +34,7 @@ import edu.temple.bistro.R
 import edu.temple.bistro.data.model.Restaurant
 import edu.temple.bistro.ui.friends.ProfilePicture
 import edu.temple.bistro.ui.theme.Inter
+import edu.temple.bistro.ui.theme.MoneyGreen
 
 @OptIn(ExperimentalSwipeableCardApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -50,8 +43,8 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
 
     val gradient = Brush.verticalGradient(
         colors = listOf(Color.Transparent, Color.Black),
-        startY = sizeImage.height.toFloat()/3,  // 1/3
-        endY = sizeImage.height.toFloat()
+        startY = 0f,  // 1/3
+        endY = 1500f
     )
 
     Card(
@@ -77,16 +70,14 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
         shape = RoundedCornerShape(31.dp),
     ) {
         Box(){
-            Image(painter = painterResource(id = R.drawable.dominos),
-                contentDescription = "",
+            Box(
                 modifier = Modifier
-                    .fillMaxHeight()
+                    .matchParentSize()
+                    .background(Color(0xFFAAAAAA))
                     .onGloballyPositioned {
                         sizeImage = it.size
                     },
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Crop
-                )
+            ) {}
             AsyncImage(
                 modifier = Modifier
                     .fillMaxHeight(),
@@ -133,7 +124,10 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
                     mainAxisSpacing = 5.dp,
                     crossAxisSpacing = 6.dp,
                 ) {
-                    data.categories.forEach { category -> CategoryChip(category.title, false, {}) }
+                    if (data.price != null) {
+                        InfoChip(data.price.toString(), textColor = MoneyGreen, selected = false, onClick = {})
+                    }
+                    data.categories.forEach { category -> InfoChip(category.title, selected = false, onClick = {}) }
                 }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(7.dp)

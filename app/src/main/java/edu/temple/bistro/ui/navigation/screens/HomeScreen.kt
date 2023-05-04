@@ -59,7 +59,7 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
 
             HomeTopBar(viewModel = viewModel, isFilterMenuOpen)
             Box {
-                Column(modifier = Modifier.blur(if (isFilterMenuOpen.value) 30.dp else 0.dp)) {
+                Column(modifier = Modifier.blur(if (isFilterMenuOpen.value) 20.dp else 0.dp)) {
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
@@ -134,7 +134,7 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
-                            .background(Color(0xAAFFFFFF))
+                            .background(Color(0xEAFFFFFF))
                     ) {
                         FilterMenu(bistroViewModel = viewModel)
                     }

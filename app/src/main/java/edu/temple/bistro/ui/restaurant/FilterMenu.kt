@@ -1,11 +1,11 @@
 package edu.temple.bistro.ui.restaurant
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -17,7 +17,7 @@ import edu.temple.bistro.data.api.RestaurantSearchBuilder
 import edu.temple.bistro.data.model.Category
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.theme.Inter
-import kotlin.math.roundToInt
+import java.text.DecimalFormat
 
 @Composable
 fun FilterMenu(bistroViewModel: BistroViewModel) {
@@ -43,10 +43,20 @@ fun FilterMenu(bistroViewModel: BistroViewModel) {
         Category("caribbean", "Caribbean"),
         Category("mediterranean", "Mediterranean"),
     )
-    val selectedCategories = remember { mutableSetOf<Category>() }
-    var searchRadius by remember { mutableStateOf(0.25f) }
+    val prices = listOf(
+        "$",
+        "$$",
+        "$$$",
+        "$$$$"
+    )
 
-    Column() {
+    val selectedCategories = rememberSaveable { bistroViewModel.search.value.getCategories().toMutableSet() }
+    val selectedPriceRanges = rememberSaveable { bistroViewModel.search.value.getPrices().toMutableSet() }
+    var searchRadius by rememberSaveable { mutableStateOf(bistroViewModel.search.value.getRadius()*0.000621371f) }
+
+
+
+    Column(modifier = Modifier.padding(20.dp)) {
         Title("Categories")
         FlowRow(
             modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp),
@@ -56,8 +66,8 @@ fun FilterMenu(bistroViewModel: BistroViewModel) {
             crossAxisSpacing = 6.dp,
         ) {
             popularCategories.forEach { category ->
-                val selected = remember { mutableStateOf(false) }
-                CategoryChip(category = category.title, selected = selected.value, onClick = {
+                val selected = remember { mutableStateOf(selectedCategories.contains(category)) }
+                InfoChip(category = category.title, selected = selected.value, onClick = {
                     selected.value = !selected.value
                     if (selected.value) {
                         selectedCategories.add(category)
@@ -75,40 +85,39 @@ fun FilterMenu(bistroViewModel: BistroViewModel) {
             mainAxisSpacing = 5.dp,
             crossAxisSpacing = 6.dp,
         ) {
-            CategoryChip(category = "$", selected = false) {
-
-            }
-            CategoryChip(category = "$$", selected = false) {
-
-            }
-            CategoryChip(category = "$$$", selected = false) {
-
-            }
-            CategoryChip(category = "$$$$", selected = false) {
-
-            }
-            CategoryChip(category = "$$$$$", selected = false) {
-
+            prices.forEach { price ->
+                val selected = remember { mutableStateOf(selectedPriceRanges.contains(price)) }
+                InfoChip(category = price, selected = selected.value, onClick = {
+                    selected.value = !selected.value
+                    if (selected.value) {
+                        selectedPriceRanges.add(price)
+                    } else {
+                        selectedPriceRanges.remove(price)
+                    }
+                })
             }
         }
         Title("Maximum Distance")
-        Slider(value = searchRadius, onValueChange = { searchRadius = it }, valueRange = 0.25f..20.0f, steps = 18)
-        Text(text = "${searchRadius.toString()} miles")
+        Slider(value = searchRadius, onValueChange = { searchRadius = it }, valueRange = 0.5f..20.0f, steps = 38)
+        Text(text = "${DecimalFormat("#.##").format(searchRadius)} miles")
 
-        Button(onClick = {
-            bistroViewModel.search.value = RestaurantSearchBuilder()
-                .addCategories(selectedCategories)
-                .setLatitude(bistroViewModel.location.value!!.latitude)
-                .setLongitude(bistroViewModel.location.value!!.longitude)
-                .setRadius((searchRadius*1609).toInt())
-            bistroViewModel.executeSearch()
-        }) {
-            Text("Apply")
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = {
+                bistroViewModel.search.value = RestaurantSearchBuilder()
+                    .addCategories(selectedCategories)
+                    .addPricesStr(selectedPriceRanges)
+                    .setLatitude(bistroViewModel.location.value!!.latitude)
+                    .setLongitude(bistroViewModel.location.value!!.longitude)
+                    .setRadius((searchRadius * 1609).toInt())
+                bistroViewModel.executeSearch()
+            }) {
+                Text("Apply")
+            }
         }
     }
 }
 
 @Composable
 fun Title(text: String) {
-    Text(text =  text, fontSize = 30.sp, fontFamily = Inter, fontWeight = FontWeight.Bold)
+    Text(text =  text, fontSize = 30.sp, fontFamily = Inter, fontWeight = FontWeight.Bold, modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp))
 }
