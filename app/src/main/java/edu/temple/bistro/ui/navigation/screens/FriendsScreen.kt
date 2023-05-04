@@ -45,38 +45,6 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
     val selectedGroup = remember { mutableStateOf("") }
 
     Box {
-        if (selectedGroup.value != "") {
-            Column(
-                modifier = Modifier
-                    .background(Color(0xFFFFFFFF))
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-                    Text(text = selectedGroup.value, style = MaterialTheme.typography.h4, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
-
-                    Text(text = "Members", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
-                    LazyColumn {
-                        items(7) { member ->
-                            Text(text = "username", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
-                        }
-                    }
-
-                    Text(text = "Overlapping Restaurants", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
-                    LazyColumn {
-                        items(7) { restaurant ->
-                            Text(text = "restaurant name", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
-                        }
-                    }
-
-                    Text(text = "Overlapping Categories", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
-                    LazyColumn {
-                        items(7) { category ->
-                            Text(text = "category name", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
-                        }
-                    }
-            }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -443,7 +411,28 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
-                Text(selectedGroup.value)
+                Text(text = selectedGroup.value, style = MaterialTheme.typography.h4, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
+
+                Text(text = "Members", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
+                LazyColumn {
+                    items(7) { member ->
+                        Text(text = "username", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                    }
+                }
+
+                Text(text = "Overlapping Restaurants", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
+                LazyColumn {
+                    items(7) { restaurant ->
+                        Text(text = "restaurant name", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                    }
+                }
+
+                Text(text = "Overlapping Categories", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
+                LazyColumn {
+                    items(7) { category ->
+                        Text(text = "category name", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                    }
+                }
             }
         }
     }
