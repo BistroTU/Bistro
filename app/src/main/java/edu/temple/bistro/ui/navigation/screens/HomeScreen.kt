@@ -77,7 +77,7 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
                                     )
                                 }
                                 LaunchedEffect(restaurant, state.swipedDirection) {
-                                    if (state.swipedDirection == Direction.Right || state.swipedDirection == Direction.Left) {
+                                    if (state.swipedDirection == Direction.Right || state.swipedDirection == Direction.Left || state.swipedDirection == Direction.Up) {
                                         Log.d("MarkSeen", "hello ${restaurant.name}")
                                         viewModel.yelpRepository.markRestaurantSeen(restaurant)
                                     }
