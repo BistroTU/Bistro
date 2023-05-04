@@ -77,6 +77,12 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
                                         Log.d("MarkSeen", "hello ${restaurant.name}")
                                         viewModel.yelpRepository.markRestaurantSeen(restaurant)
                                     }
+                                    if (state.swipedDirection == Direction.Right) {
+                                        viewModel.fireRepo.addLikedPlace(viewModel.firebaseUser.value!!, restaurant)
+                                    }
+                                    else if (state.swipedDirection == Direction.Left) {
+                                        viewModel.fireRepo.addDislikedPlace(viewModel.firebaseUser.value!!, restaurant)
+                                    }
                                 }
                             }
                         }

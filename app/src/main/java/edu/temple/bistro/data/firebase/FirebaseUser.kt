@@ -12,9 +12,9 @@ data class FirebaseUser (var first_name: String? = null,
                          var filter_criteria: FirebaseFilterCriteria? = null,
                          var liked_places: MutableMap<String, FirebasePlace>? = null,
                          var disliked_places: MutableMap<String, FirebasePlace>? = null,
-                         var liked_categories: List<String>? = null,
+                         var liked_categories: MutableList<String>? = null,
                          var friends: MutableMap<String, FirebaseFriend>? = null,
-                         var groups: List<String>? = null
+                         var groups: MutableMap<String, Any?>? = null
                          ) {
     @Exclude
     fun toMap(): Map<String, Any?> {
