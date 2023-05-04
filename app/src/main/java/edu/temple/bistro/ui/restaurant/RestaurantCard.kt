@@ -132,10 +132,10 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(7.dp)
                 ) {
-                    ProfilePicture(imageId = R.drawable.dominos)
-                    ProfilePicture(imageId = R.drawable.dominos)
-                    ProfilePicture(imageId = R.drawable.dominos)
-                    ProfilePicture(imageId = R.drawable.dominos)
+                    ProfilePicture("Jacob Snarr")
+                    ProfilePicture("Jacob Snarr")
+                    ProfilePicture("Jacob Snarr")
+                    ProfilePicture("Jacob Snarr")
                 }
             }
         }

@@ -7,7 +7,8 @@ import com.google.firebase.database.IgnoreExtraProperties
 data class FirebasePlace (
     var id: String? = null,
     var name: String? = null,
-    var timestamp: Long? = null
+    var timestamp: Long? = null,
+    var url: String? = null
         )
 {
     @Exclude
@@ -15,7 +16,8 @@ data class FirebasePlace (
         return mapOf(
             "id" to id,
             "name" to name,
-            "timestamp" to timestamp
+            "timestamp" to timestamp,
+            "url" to url
         )
     }
 }

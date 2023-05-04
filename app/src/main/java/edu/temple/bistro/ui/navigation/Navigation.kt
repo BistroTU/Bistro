@@ -11,8 +11,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 //import edu.temple.Screen
 import edu.temple.bistro.ui.BistroViewModel
-import edu.temple.bistro.ui.navigation.screens.*
+import edu.temple.bistro.ui.navigation.screens.FriendsScreen
+import edu.temple.bistro.ui.navigation.screens.HomeScreen
+import edu.temple.bistro.ui.navigation.screens.SignInScreen
+import edu.temple.bistro.ui.navigation.screens.SignUpScreen
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun Navigation(navController: NavHostController, startScreen: String, viewModel: BistroViewModel, innerPadding: PaddingValues) {
     NavHost(navController = navController, startDestination = startScreen) {
@@ -39,6 +43,9 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
         ) {
             FriendsScreen(navController, viewModel)
         }
+        composable(route = NavigationItem.LikedPlacesScreen.route) {
+            viewModel.fireRepo.getUserFlow(viewModel.firebaseUser.value!!.username!!).value?.liked_places?.values?.let { it1 -> PlacesScreen(title = "Liked Places", places = it1.toList()) }
+        }
 //        composable(
 //            route = NavigationItem.SettingsScreen.route + "/{name}",
 //            arguments = listOf(
@@ -50,5 +57,13 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
 //        ) {
 //            SettingsScreen(name = it.arguments?.getString("name"))
 //        }
+    }
+}
+
+@Composable
+fun SettingsScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize()) {
+        Text(text = "Hello")
     }
 }

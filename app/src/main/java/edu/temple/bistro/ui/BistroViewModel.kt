@@ -8,8 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import edu.temple.bistro.FirebaseHelper
-import edu.temple.bistro.Friend
 import edu.temple.bistro.data.BistroDatabase
 import edu.temple.bistro.data.YelpRepository
 import edu.temple.bistro.data.api.RestaurantSearchBuilder

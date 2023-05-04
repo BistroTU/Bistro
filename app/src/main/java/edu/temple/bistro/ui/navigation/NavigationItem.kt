@@ -10,6 +10,7 @@ sealed class NavigationItem(val route: String, val icon: ImageVector) {
     object SettingsScreen: NavigationItem("settings_screen", Icons.Filled.Settings)
     object FriendsScreen: NavigationItem("friends_screen", Icons.Filled.People)
     object SignInScreen: NavigationItem("sign_in_screen", Icons.Filled.AppRegistration)
+    object LikedPlacesScreen: NavigationItem("liked_places_screen", Icons.Filled.Favorite)
 
     fun withArgs(vararg args: String): String {
         return buildString {

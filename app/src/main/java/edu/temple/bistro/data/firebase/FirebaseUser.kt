@@ -12,7 +12,7 @@ data class FirebaseUser (var first_name: String? = null,
                          var filter_criteria: FirebaseFilterCriteria? = null,
                          var liked_places: MutableMap<String, FirebasePlace>? = null,
                          var disliked_places: MutableMap<String, FirebasePlace>? = null,
-                         var liked_categories: MutableList<String>? = null,
+                         var liked_categories: MutableMap<String, FirebaseCategory>? = null,
                          var friends: MutableMap<String, FirebaseFriend>? = null,
                          var groups: MutableMap<String, Any?>? = null
                          ) {
@@ -27,7 +27,7 @@ data class FirebaseUser (var first_name: String? = null,
             "filter_criteria" to filter_criteria,
             "liked_places" to liked_places?.keys?.associateWith { liked_places?.get(it)?.toMap() },
             "disliked_places" to disliked_places?.keys?.associateWith { disliked_places?.get(it)?.toMap() },
-            "liked_categories" to liked_categories,
+            "liked_categories" to liked_categories?.keys?.associateWith { liked_categories?.get(it)?.toMap() },
             "friends" to friends?.keys?.associateWith { friends?.get(it)?.toMap() },
             "groups" to groups
         )

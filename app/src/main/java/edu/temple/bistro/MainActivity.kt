@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
                     val bottomNavigationItems = listOf(
                         NavigationItem.HomeScreen,
                         NavigationItem.FriendsScreen,
+                        NavigationItem.LikedPlacesScreen,
                         NavigationItem.SettingsScreen
                     )
 
