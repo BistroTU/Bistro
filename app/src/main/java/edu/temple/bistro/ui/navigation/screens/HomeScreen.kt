@@ -1,5 +1,7 @@
 package edu.temple.bistro.ui.navigation.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexstyl.swipeablecard.Direction
@@ -56,6 +59,7 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
             val isFilterMenuOpen = remember { mutableStateOf(false) }
 
             val scope = rememberCoroutineScope()
+            val context = LocalContext.current
 
             HomeTopBar(viewModel = viewModel, isFilterMenuOpen)
             Box {
@@ -82,6 +86,13 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
                                     }
                                     else if (state.swipedDirection == Direction.Left) {
                                         viewModel.fireRepo.addDislikedPlace(viewModel.firebaseUser.value!!, restaurant)
+                                    }
+                                    else if (state.swipedDirection == Direction.Up) {
+                                        viewModel.fireRepo.addLikedPlace(viewModel.firebaseUser.value!!, restaurant)
+                                        restaurant.url.let { url -> context.startActivity(Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(url)
+                                        )) }
                                     }
                                 }
                             }

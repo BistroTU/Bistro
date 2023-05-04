@@ -1,5 +1,6 @@
 package edu.temple.bistro.ui.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.navigation.compose.composable
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.screens.FriendsScreen
 import edu.temple.bistro.ui.navigation.screens.HomeScreen
+import edu.temple.bistro.ui.navigation.screens.PlacesScreen
 import edu.temple.bistro.ui.navigation.screens.SignInScreen
 import edu.temple.bistro.ui.navigation.screens.SignUpScreen
 
@@ -26,7 +28,7 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
         composable(
             route = NavigationItem.SettingsScreen.route,
         ) {
-            SettingsScreen(navController)
+            SettingsScreen()
         }
         composable(
             route = NavigationItem.SignUpScreen.route,
