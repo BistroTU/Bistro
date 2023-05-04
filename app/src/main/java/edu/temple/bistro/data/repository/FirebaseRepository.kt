@@ -1,6 +1,8 @@
 package edu.temple.bistro.data.repository
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -15,7 +17,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import kotlin.random.Random
 
-class FirebaseRepository(private val db: FirebaseDatabase) {
+class FirebaseRepository(private val db: FirebaseDatabase, private val context: Context) {
     private val users = mutableMapOf<String, MutableStateFlow<FirebaseUser?>>()
     private val groups = mutableMapOf<String, MutableStateFlow<FirebaseGroup?>>()
 
@@ -51,6 +53,23 @@ class FirebaseRepository(private val db: FirebaseDatabase) {
         });
     }
 
+    fun registerGroup(groupID: String) {
+        if (!groups.containsKey(groupID)) {
+            groups[groupID] = MutableStateFlow(null)
+        }
+        db.getReference("groups").child(groupID).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(FirebaseGroup::class.java)
+                groups[groupID]!!.value = user
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("FR: registerGroup", "onCancelled", error.toException())
+            }
+
+        });
+    }
+
     fun getUserFlow(username: String): StateFlow<FirebaseUser?> {
         return if (users.containsKey(username)) {
             users[username]!!.asStateFlow()
@@ -64,6 +83,22 @@ class FirebaseRepository(private val db: FirebaseDatabase) {
         return runBlocking {
             return@runBlocking db.getReference("users").child(keyStr(username)).get().await()
                 .getValue(FirebaseUser::class.java)
+        }
+    }
+
+    fun getGroupFlow(groupID: String): StateFlow<FirebaseGroup?> {
+        return if (groups.containsKey(groupID)) {
+            groups[groupID]!!.asStateFlow()
+        } else {
+            groups[groupID] = MutableStateFlow(null)
+            groups[groupID]!!.asStateFlow()
+        }
+    }
+
+    fun getGroupBlocking(groupID: String): FirebaseGroup? {
+        return runBlocking {
+            return@runBlocking db.getReference("groups").child(groupID).get().await()
+                .getValue(FirebaseGroup::class.java)
         }
     }
 
@@ -109,6 +144,34 @@ class FirebaseRepository(private val db: FirebaseDatabase) {
         db.getReference("users").updateChildren(mapOf(
             "/${keyStr(username)}" to user.toMap()
         ))
+    }
+
+    fun createGroup(user: FirebaseUser) {
+        val groupID = generateGroupID()
+        db.getReference("").updateChildren(mapOf(
+            "/users/${keyStr(user.username!!)}/groups/$groupID" to true,
+            "/groups/$groupID" to FirebaseGroup(id=groupID, members = mutableListOf(user.username!!)).toMap()
+        ))
+        registerGroup(groupID)
+    }
+
+    fun joinGroup(user: FirebaseUser, groupID: String) {
+        val group = if (groups.containsKey(groupID)) {
+            groups[groupID]!!.value
+        } else {
+            getGroupBlocking(groupID)
+        }
+        if (group == null) {
+            Toast.makeText(context, "Invalid Group", Toast.LENGTH_SHORT).show()
+        }
+        else {
+            if (group.members == null) {
+                group.members = mutableListOf(user.username!!)
+            }
+            else {
+                group.members!!.add(user.username!!)
+            }
+        }
     }
 
     private fun generateGroupID(): String {

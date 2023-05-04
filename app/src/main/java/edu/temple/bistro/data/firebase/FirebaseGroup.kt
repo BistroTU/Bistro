@@ -6,7 +6,7 @@ import com.google.firebase.database.IgnoreExtraProperties
 @IgnoreExtraProperties
 data class FirebaseGroup(
     var id: String? = null,
-    var members: List<String>? = null
+    var members: MutableList<String>? = null
 ) {
     @Exclude
     fun toMap(): Map<String, Any?> {
