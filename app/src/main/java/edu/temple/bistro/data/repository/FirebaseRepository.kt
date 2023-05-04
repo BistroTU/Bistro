@@ -33,6 +33,10 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         }
     }
 
+    init {
+        registerGroups()
+    }
+
     fun registerUser(username: String, recurse: Boolean = true) {
         if (!users.containsKey(username)) {
             users[username] = MutableStateFlow(null)
@@ -46,11 +50,6 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
                         friend.username?.let { registerUser(it, false) }
                     }
                 }
-                if (user?.groups != null && recurse) {
-                    for (group in user.groups!!.keys) {
-                        registerGroup(group)
-                    }
-                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -60,19 +59,23 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         })
     }
 
-    fun registerGroup(groupID: String) {
-        if (!groups.containsKey(groupID)) {
-            groups[groupID] = MutableStateFlow(null)
-        }
-        db.getReference("groups").child(groupID).addValueEventListener(object : ValueEventListener {
+    fun registerGroups() {
+        db.getReference("groups").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val group = snapshot.getValue(FirebaseGroup::class.java)
-                groups[groupID]!!.value = group
-                if (group?.members != null) {
-                    for (member in group.members!!) {
-                        registerUser(member, false)
+                for (child in snapshot.children) {
+                    val group = child.getValue(FirebaseGroup::class.java)
+                    Log.d("FR: regGroups", group.toString())
+                    if (!groups.containsKey(group?.id)) {
+                        groups[group?.id!!] = MutableStateFlow(null)
+                    }
+                    groups[group?.id!!]!!.value = group
+                    if (group.members != null) {
+                        for (member in group.members!!) {
+                            registerUser(member, false)
+                        }
                     }
                 }
+
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -93,7 +96,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
 
     fun getUserBlocking(username: String): FirebaseUser? {
         return runBlocking {
-            return@runBlocking db.getReference("users").child(keyStr(username)).get().await()
+            db.getReference("users").child(keyStr(username)).get().await()
                 .getValue(FirebaseUser::class.java)
         }
     }
@@ -109,7 +112,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
 
     fun getGroupBlocking(groupID: String): FirebaseGroup? {
         return runBlocking {
-            return@runBlocking db.getReference("groups").child(groupID).get().await()
+            db.getReference("groups").child(groupID).get().await()
                 .getValue(FirebaseGroup::class.java)
         }
     }
@@ -199,14 +202,12 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
             "/users/${keyStr(user.username!!)}/groups/$groupID" to true,
             "/groups/$groupID" to FirebaseGroup(id=groupID, members = mutableListOf(user.username!!)).toMap()
         ))
-        registerGroup(groupID)
     }
 
     fun joinGroup(user: FirebaseUser, groupID: String) {
         val group = if (groups.containsKey(groupID)) {
             groups[groupID]!!.value
         } else {
-            registerGroup(groupID)
             getGroupBlocking(groupID)
         }
         if (group == null) {
