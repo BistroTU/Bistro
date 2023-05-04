@@ -129,14 +129,14 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
                     }
                     data.categories.forEach { category -> InfoChip(category.title, selected = false, onClick = {}) }
                 }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(7.dp)
-                ) {
-                    ProfilePicture("Jacob Snarr")
-                    ProfilePicture("Jacob Snarr")
-                    ProfilePicture("Jacob Snarr")
-                    ProfilePicture("Jacob Snarr")
-                }
+//                Row(
+//                    horizontalArrangement = Arrangement.spacedBy(7.dp)
+//                ) {
+//                    ProfilePicture("Jacob Snarr")
+//                    ProfilePicture("Jacob Snarr")
+//                    ProfilePicture("Jacob Snarr")
+//                    ProfilePicture("Jacob Snarr")
+//                }
             }
         }
 
