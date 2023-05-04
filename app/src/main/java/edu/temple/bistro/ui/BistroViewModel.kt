@@ -24,7 +24,7 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
     private val firebaseDb = Firebase.database.apply {
         setPersistenceEnabled(true)
     }
-    val fireRepo = FirebaseRepository(firebaseDb)
+    val fireRepo = FirebaseRepository(firebaseDb, getApplication())
     val roomDb = BistroDatabase.getDatabase(getApplication())
     val yelpRepository = YelpRepository(roomDb)
 
