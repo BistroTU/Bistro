@@ -15,6 +15,7 @@ import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.screens.FriendsScreen
 import edu.temple.bistro.ui.navigation.screens.HomeScreen
 import edu.temple.bistro.ui.navigation.screens.PlacesScreen
+import edu.temple.bistro.ui.navigation.screens.SettingsScreen
 import edu.temple.bistro.ui.navigation.screens.SignInScreen
 import edu.temple.bistro.ui.navigation.screens.SignUpScreen
 
@@ -28,7 +29,7 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
         composable(
             route = NavigationItem.SettingsScreen.route,
         ) {
-            SettingsScreen()
+            SettingsScreen(navController)
         }
         composable(
             route = NavigationItem.SignUpScreen.route,
@@ -59,13 +60,5 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
 //        ) {
 //            SettingsScreen(name = it.arguments?.getString("name"))
 //        }
-    }
-}
-
-@Composable
-fun SettingsScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize()) {
-        Text(text = "Hello")
     }
 }
