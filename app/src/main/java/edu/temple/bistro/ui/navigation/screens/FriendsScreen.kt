@@ -46,19 +46,7 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
     val groups = userState.value?.groups?.keys?.toList() ?: emptyList()
     val selectedGroup = remember { mutableStateOf("") }
 
-    Box() {
-        if (selectedGroup.value != "") {
-            Column(
-                modifier = Modifier
-                    .background(Color(0xFFFFFFFF))
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-                Text(selectedGroup.value)
-            }
-        }
-
-
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -415,6 +403,17 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                         }
                     }
                 })
+            }
+        }
+
+        if (selectedGroup.value != "") {
+            Column(
+                modifier = Modifier
+                    .background(Color(0xFFFFFFFF))
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
+                Text(selectedGroup.value)
             }
         }
     }
