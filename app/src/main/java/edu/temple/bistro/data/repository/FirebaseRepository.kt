@@ -161,7 +161,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
     }
 
     fun addLikedPlace(user: FirebaseUser, restaurant: Restaurant) {
-        val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis())
+        val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis(), restaurant.url)
         if (user.liked_categories == null) {
             user.liked_categories = restaurant.categories.associate {
                 Pair(it.alias, FirebaseCategory(it.alias, it.title))
@@ -184,7 +184,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
     }
 
     fun addDislikedPlace(user: FirebaseUser, restaurant: Restaurant) {
-        val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis())
+        val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis(), restaurant.url)
         if (user.disliked_places == null) {
             user.disliked_places = mutableMapOf(
                 Pair(restaurant.id, place)

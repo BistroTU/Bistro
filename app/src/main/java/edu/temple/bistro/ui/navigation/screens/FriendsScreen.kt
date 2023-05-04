@@ -1,6 +1,8 @@
 package edu.temple.bistro.ui.navigation.screens
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +40,7 @@ import java.util.Locale
 fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
     val userState = viewModel.firebaseUser.collectAsState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val pendingRequests = userState.value?.friends?.values?.filter {
         it.friend_status == FirebaseRepository.FriendState.PENDING_RECEIVED.name
@@ -433,7 +437,9 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                 Text(text = "Overlapping Restaurants", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
                 LazyColumn(modifier = Modifier.fillMaxHeight(2/5f)) {
                     items(items = places?.values?.toList() ?: listOf()) { restaurant ->
-                        Text(text = restaurant.name!!, style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                        Text(text = restaurant.name!!, style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp).clickable {
+                            restaurant.url?.let { url -> context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                        })
                     }
                 }
 
