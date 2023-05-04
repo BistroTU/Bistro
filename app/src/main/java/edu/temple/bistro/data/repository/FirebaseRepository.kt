@@ -7,6 +7,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import edu.temple.bistro.data.firebase.FirebaseCategory
 import edu.temple.bistro.data.firebase.FirebaseFriend
 import edu.temple.bistro.data.firebase.FirebaseGroup
 import edu.temple.bistro.data.firebase.FirebasePlace
@@ -162,13 +163,14 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
     fun addLikedPlace(user: FirebaseUser, restaurant: Restaurant) {
         val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis())
         if (user.liked_categories == null) {
-            user.liked_categories = restaurant.categories.map { it.alias }.toMutableList()
+            user.liked_categories = restaurant.categories.associate {
+                Pair(it.alias, FirebaseCategory(it.alias, it.title))
+            }.toMutableMap()
         }
         else {
-            val set = user.liked_categories!!.toMutableSet().apply{
-                addAll(restaurant.categories.map { it.alias })
+            restaurant.categories.forEach {
+                user.liked_categories!!.putIfAbsent(it.alias, FirebaseCategory(it.alias, it.title))
             }
-            user.liked_categories = set.toMutableList()
         }
         if (user.liked_places == null) {
             user.liked_places = mutableMapOf(
@@ -257,14 +259,14 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         db.getReference("").updateChildren(updatedValues)
     }
 
-    fun getCommonCategories(usernames: List<String>): List<String> {
+    fun getCommonCategories(usernames: List<String>): List<FirebaseCategory> {
         val users = usernames.map { users[it]?.value }
-        var categories = setOf<String>()
+        var categories = setOf<FirebaseCategory>()
 
         users.forEach {
             if (it?.liked_categories == null) return@forEach
-            categories = if (categories.isEmpty()) categories.union(it.liked_categories!!)
-            else categories.intersect(it.liked_categories!!.toSet())
+            categories = if (categories.isEmpty()) categories.union(it.liked_categories!!.values)
+            else categories.intersect(it.liked_categories!!.values.toSet())
         }
 
         return categories.toList()
