@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -405,6 +408,7 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
         }
 
         if (selectedGroup.value != "") {
+
             Column(
                 modifier = Modifier
                     .background(Color(0xFFFFFFFF))
@@ -413,6 +417,7 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                     .padding(15.dp)
             ) {
                 Text(text = selectedGroup.value, style = MaterialTheme.typography.h4, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
+
 
                 Text(text = "Members", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
                 LazyColumn {
@@ -434,6 +439,17 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                         Text(text = "category name", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
                     }
                 }
+
+            }
+
+            IconButton(
+                onClick = {selectedGroup.value=""},
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = null
+                )
             }
         }
     }
