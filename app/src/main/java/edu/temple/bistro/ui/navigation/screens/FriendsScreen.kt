@@ -410,6 +410,7 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                     .background(Color(0xFFFFFFFF))
                     .fillMaxWidth()
                     .fillMaxHeight()
+                    .padding(15.dp)
             ) {
                 Text(text = selectedGroup.value, style = MaterialTheme.typography.h4, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
 
