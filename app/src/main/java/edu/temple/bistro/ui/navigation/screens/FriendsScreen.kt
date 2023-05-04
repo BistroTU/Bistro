@@ -48,6 +48,7 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
     val activeFriends = userState.value?.friends?.values?.filter {
         it.friend_status == FirebaseRepository.FriendState.ACTIVE.name
     } ?: emptyList()
+    val groups = userState.value?.groups?.keys?.toList() ?: emptyList()
 
 
     Column(
@@ -236,6 +237,114 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                                     }
                                 }) {
                                     Text(text = "Remove Friend")
+                                }
+                            },
+                            dismissButton = {
+                                Button(onClick = {
+                                    openDialog.value = false
+                                }) {
+                                    Text(text = "Cancel")
+                                }
+                            }
+                        )
+                    }
+                }
+            })
+        }
+
+        Row(modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically) {
+            val joinGroup = remember { mutableStateOf(false) }
+            var groupID by rememberSaveable { mutableStateOf("")}
+            Text(text =  "Groups", fontSize = 30.sp, fontFamily = Inter, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Image(
+                painter = painterResource(id = R.drawable.baseline_groups_3_24),
+                "Join Group",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(32.dp)
+                    .clickable { joinGroup.value = !joinGroup.value }
+                ,
+                contentScale = ContentScale.Crop
+            )
+            Image(
+                painter = painterResource(id = R.drawable.baseline_group_add_24),
+                "Add Group",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(32.dp)
+                    .clickable { viewModel.fireRepo.createGroup(userState.value!!) }
+                ,
+                contentScale = ContentScale.Crop
+            )
+            if (joinGroup.value) {
+                AlertDialog(
+                    onDismissRequest = { joinGroup.value = false },
+                    title = {
+                        Text(text = "Join Group")
+                    },
+                    text = {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(text = "Enter the ID of the group you'd like to join")
+                            TextField(modifier = Modifier.fillMaxWidth(), value = groupID, onValueChange = { groupID = it }, placeholder = { Text(text = "Group ID") })
+                        }
+
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            joinGroup.value = false
+                            viewModel.fireRepo.joinGroup(userState.value!!, groupID)
+                        }) {
+                            Text(text = "Join Group")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = {
+                            joinGroup.value = false
+                        }) {
+                            Text(text = "Cancel")
+                        }
+                    }
+                )
+            }
+        }
+
+        LazyColumn {
+
+            items(items= groups, itemContent = {
+                Row (modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    val openDialog = remember { mutableStateOf(false) }
+                    ProfilePicture(imageId = R.drawable.dominos)
+                    Text(text = it,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .weight(1f))
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_close_24),
+                        "Remove",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(24.dp)
+                            .clickable { openDialog.value = true }
+                        ,
+                        contentScale = ContentScale.Crop
+                    )
+                    if (openDialog.value) {
+                        AlertDialog(
+                            onDismissRequest = { openDialog.value = false },
+                            title = {
+                                Text(text = "Leave Group")
+                            },
+                            text = {
+                                Text(text = "Would you like to leave group $it?")
+                            },
+                            confirmButton = {
+                                Button(onClick = {
+                                    openDialog.value = false
+                                    viewModel.fireRepo.leaveGroup(userState.value!!, it)
+                                }) {
+                                    Text(text = "Leave Group")
                                 }
                             },
                             dismissButton = {

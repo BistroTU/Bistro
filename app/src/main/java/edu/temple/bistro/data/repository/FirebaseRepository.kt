@@ -47,7 +47,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
                     }
                 }
                 if (user?.groups != null && recurse) {
-                    for (group in user.groups!!) {
+                    for (group in user.groups!!.keys) {
                         registerGroup(group)
                     }
                 }
@@ -66,8 +66,13 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         }
         db.getReference("groups").child(groupID).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(FirebaseGroup::class.java)
-                groups[groupID]!!.value = user
+                val group = snapshot.getValue(FirebaseGroup::class.java)
+                groups[groupID]!!.value = group
+                if (group?.members != null) {
+                    for (member in group.members!!) {
+                        registerUser(member, false)
+                    }
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -208,13 +213,11 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
             Toast.makeText(context, "Invalid Group", Toast.LENGTH_SHORT).show()
             return
         }
+        if (group.members == null) {
+            group.members = mutableListOf(user.username!!)
+        }
         else {
-            if (group.members == null) {
-                group.members = mutableListOf(user.username!!)
-            }
-            else {
-                group.members!!.add(user.username!!)
-            }
+            group.members!!.add(user.username!!)
         }
         db.getReference("").updateChildren(mapOf(
             "/users/${keyStr(user.username!!)}/groups/$groupID" to true,
@@ -223,28 +226,34 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
     }
 
     fun leaveGroup(user: FirebaseUser, groupID: String) {
-        val group = if (groups.containsKey(groupID)) {
-            groups[groupID]!!.value
-        } else {
-            registerGroup(groupID)
-            getGroupBlocking(groupID)
-        }
+        val group = groups[groupID]?.value
         if (group == null) {
             Toast.makeText(context, "Invalid Group", Toast.LENGTH_SHORT).show()
             return
         }
-        else {
-            if (group.members == null) {
-                group.members = mutableListOf(user.username!!)
-            }
-            else {
-                group.members!!.add(user.username!!)
-            }
+        if (group.members != null) {
+            group.members!!.remove(user.username!!)
         }
         db.getReference("").updateChildren(mapOf(
-            "/users/${keyStr(user.username!!)}/groups/$groupID" to true,
+            "/users/${keyStr(user.username!!)}/groups/$groupID" to null,
             "/groups/$groupID" to group.toMap()
         ))
+    }
+
+    fun deleteGroup(groupID: String) {
+        val group = groups[groupID]?.value
+        if (group == null) {
+            Toast.makeText(context, "Invalid Group", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val updatedValues = mutableMapOf<String, Any?>()
+        if (group.members != null) {
+            group.members!!.forEach {
+                updatedValues["/users/${keyStr(it)}/groups/$groupID"] = null
+            }
+        }
+        updatedValues["/groups/$groupID"] = null
+        db.getReference("").updateChildren(updatedValues)
     }
 
 
