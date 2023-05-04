@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import edu.temple.bistro.FirebaseHelper
@@ -14,7 +13,9 @@ import edu.temple.bistro.Friend
 import edu.temple.bistro.data.BistroDatabase
 import edu.temple.bistro.data.YelpRepository
 import edu.temple.bistro.data.api.RestaurantSearchBuilder
+import edu.temple.bistro.data.firebase.FirebaseUser
 import edu.temple.bistro.data.model.AppState
+import edu.temple.bistro.data.repository.FirebaseRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -23,18 +24,14 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
     private val firebaseDb = Firebase.database.apply {
         setPersistenceEnabled(true)
     }
-    val firebase = FirebaseHelper(firebaseDb)
+    val fireRepo = FirebaseRepository(firebaseDb)
     val roomDb = BistroDatabase.getDatabase(getApplication())
     val yelpRepository = YelpRepository(roomDb)
 
     val search = MutableStateFlow(RestaurantSearchBuilder())
     val location = MutableStateFlow<Location?>(null)
-    val currentUser = MutableStateFlow(FirebaseAuth.getInstance().currentUser)
-
-    private val _friends = MutableStateFlow<List<Friend>?>(null)
-
-    val friends
-        get() = _friends.asStateFlow()
+    val authUser = MutableStateFlow(FirebaseAuth.getInstance().currentUser)
+    val firebaseUser = MutableStateFlow<FirebaseUser?>(null)
 
     var state: StateFlow<AppState?>? = null
     init {
@@ -52,20 +49,21 @@ class BistroViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
         viewModelScope.launch {
-            currentUser.collect {
+            authUser.collect {
                 if (it == null) return@collect
                 Log.d("BistroVM", it.toString())
-                firebase.getFriends(firebase.keyStr(it.email!!), this@BistroViewModel::friendsListCallback)
+                fireRepo.registerUser(it.email!!)
+                viewModelScope.launch {
+                    fireRepo.getUserFlow(it.email!!).collect { fu ->
+                        firebaseUser.value = fu
+                    }
+                }
             }
         }
+
     }
 
     fun executeSearch() {
         yelpRepository.fetchRestaurants(search.value)
-    }
-
-    private fun friendsListCallback(friends: List<Friend>) {
-        Log.d("FRIENDS", friends.toString())
-        _friends.value = friends
     }
 }

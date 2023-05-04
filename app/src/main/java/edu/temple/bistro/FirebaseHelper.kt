@@ -103,14 +103,15 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         val friendFriendsRef = friendRef.child("friends")
         val friendNewFriendRef = friendFriendsRef.child(keyStr(username))
 
-        var userHasFriend = false
-        var friendHasUser = false
+        var userHasFriend: Boolean
+        var friendHasUser: Boolean
 
         checkFriendsList(username, friend.username) { result ->
             userHasFriend = result
 
             checkFriendsList(friend.username, username) { result2 ->
                 friendHasUser = result2
+                Log.d("addFriend", "UHF: $userHasFriend  |  FHU: $friendHasUser")
                 if(!userHasFriend && !friendHasUser) {
                     userNewFriendRef.setValue(Friend(friend.username, FriendState.PENDING_SENT.name))
                     friendNewFriendRef.setValue(Friend(username, FriendState.PENDING_RECEIVED.name))
@@ -126,11 +127,11 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
     fun removeFriend(username: String, friendUsername: String) {
         val userRef = db.getReference("users").child(keyStr(username))
         val friendsRef = userRef.child("friends")
-        friendsRef.child(friendUsername).setValue(null)
+        friendsRef.child(keyStr(friendUsername)).setValue(null)
 
         val friendRef = db.getReference("users").child(keyStr(friendUsername))
         val friendsFriendsRef = friendRef.child("friends")
-        friendsFriendsRef.child(username).setValue(null)
+        friendsFriendsRef.child(keyStr(username)).setValue(null)
     }
 
     fun createGroup(username: String) {
@@ -196,10 +197,10 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
 
     private fun generateGroupID(): String {
         val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
-        val randomIndex = (alphabet.indices).random()
-        val randomLetter = alphabet[randomIndex]
-        val randomNumber = Random(System.currentTimeMillis()).nextInt(1000,10000)
-        return "${randomLetter}${randomNumber}"
+        val rand = Random(System.currentTimeMillis())
+        val randomLetter = alphabet[rand.nextInt(0,alphabet.length)]
+        val randomNumber = rand.nextInt(1000,10000)
+        return "$randomLetter$randomNumber"
     }
 
     fun getUser(username: String, callback: (User?) -> Unit) {
@@ -304,6 +305,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
                     friendsSnapshot.children.forEach { friendSnapshot ->
                         val friendName = friendSnapshot.child("username").getValue(String::class.java)
                         val friendStatus = friendSnapshot.child("friend_status").getValue(String::class.java)
+                        Log.d("addFriend", "$friendName | $friendStatus")
                         val friend = Friend(friendName!!, friendStatus!!)
                         friendsList.add(friend)
                     }

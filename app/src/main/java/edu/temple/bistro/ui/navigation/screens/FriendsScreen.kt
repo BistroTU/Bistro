@@ -1,52 +1,53 @@
 package edu.temple.bistro.ui.navigation.screens
 
-import android.util.Log
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import edu.temple.bistro.FirebaseHelper
-import edu.temple.bistro.Friend
 import edu.temple.bistro.R
+import edu.temple.bistro.data.repository.FirebaseRepository
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.friends.ProfilePicture
 import edu.temple.bistro.ui.theme.Inter
-import kotlinx.coroutines.launch
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
-    val friendsState = viewModel.friends.collectAsState()
+    val userState = viewModel.firebaseUser.collectAsState()
     val scope = rememberCoroutineScope()
+
+    val pendingRequests = userState.value?.friends?.values?.filter {
+        it.friend_status == FirebaseRepository.FriendState.PENDING_RECEIVED.name
+    } ?: emptyList()
+    val activeFriends = userState.value?.friends?.values?.filter {
+        it.friend_status == FirebaseRepository.FriendState.ACTIVE.name
+    } ?: emptyList()
 
 
     Column(
@@ -54,9 +55,55 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(text =  "Friends", fontSize = 30.sp, fontFamily = Inter, fontWeight = FontWeight.Bold)
+        Row(modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically) {
+            val addFriend = remember { mutableStateOf(false) }
+            var friendEmail by rememberSaveable { mutableStateOf("")}
+            Text(text =  "Friends", fontSize = 30.sp, fontFamily = Inter, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Image(
+                painter = painterResource(id = R.drawable.baseline_person_add_24),
+                "Remove",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(32.dp)
+                    .clickable { addFriend.value = !addFriend.value }
+                ,
+                contentScale = ContentScale.Crop
+            )
+            if (addFriend.value) {
+                AlertDialog(
+                    onDismissRequest = { addFriend.value = false },
+                    title = {
+                        Text(text = "Add Friend")
+                    },
+                    text = {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(text = "Enter the username of the person you'd like to add as a friend")
+                            TextField(modifier = Modifier.fillMaxWidth(), value = friendEmail, onValueChange = { friendEmail = it }, placeholder = { Text(text = "Email") })
+                        }
+
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            addFriend.value = false
+                            viewModel.fireRepo.addFriendship(userState.value!!.username!!, friendEmail)
+                        }) {
+                            Text(text = "Add Friend")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = {
+                            addFriend.value = false
+                        }) {
+                            Text(text = "Cancel")
+                        }
+                    }
+                )
+            }
+        }
+
         LazyColumn {
-            if (friendsState.value.getFriends(FirebaseHelper.FriendState.PENDING_RECEIVED).isNotEmpty()) {
+            if (pendingRequests.isNotEmpty()) {
                 item {
                     val expanded = remember { mutableStateOf(false) }
                     Row(
@@ -94,18 +141,14 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                         Column( modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp) ) {
-                            for (friend in friendsState.value.getFriends(FirebaseHelper.FriendState.PENDING_RECEIVED)) {
-                                val name = remember {mutableStateOf("")}
+                            for (friend in pendingRequests) {
+                                val friendUser = viewModel.fireRepo.getUserFlow(friend.username!!).value
+                                val name = "${friendUser?.first_name} ${friendUser?.last_name}"
                                 val openDialog = remember { mutableStateOf(false) }
-                                viewModel.firebase.getName(friend.username) {uname ->
-                                    Log.d("Friends", "NewName $uname")
-                                    if (uname == null) return@getName
-                                    name.value = uname
-                                }
                                 Row (modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically) {
                                     ProfilePicture(imageId = R.drawable.dominos)
-                                    Text(text = name.value,
+                                    Text(text = name,
                                         modifier = Modifier
                                             .padding(4.dp)
                                             .weight(1f))
@@ -127,12 +170,12 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                                             Text(text = "Add Friend")
                                         },
                                         text = {
-                                            Text(text = "Would you like to add ${name.value} as a friend?")
+                                            Text(text = "Would you like to add ${name} as a friend?")
                                         },
                                         confirmButton = {
                                             Button(onClick = {
                                                 openDialog.value = false
-                                                viewModel.firebase.addFriend(viewModel.currentUser.value!!.email!!, friend)
+                                                viewModel.fireRepo.addFriendship(userState.value!!.username!!, friend.username!!)
                                             }) {
                                                 Text(text = "Add Friend")
                                             }
@@ -152,26 +195,61 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                 }
             }
 
-            items(items= friendsState.value.getFriends(FirebaseHelper.FriendState.ACTIVE), itemContent = {
+            items(items= activeFriends, itemContent = {
                 val name = remember {mutableStateOf("")}
-                viewModel.firebase.getName(it.username) {uname ->
-                    Log.d("Friends", "NewName $uname")
-                    if (uname == null) return@getName
-                    name.value = uname
+                it.username?.let { it1 ->
+                    val friendUser = viewModel.fireRepo.getUserFlow(it1).value
+                    name.value = "${friendUser?.first_name} ${friendUser?.last_name}"
                 }
                 Row (modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
+                    val openDialog = remember { mutableStateOf(false) }
                     ProfilePicture(imageId = R.drawable.dominos)
-                    Text(text = name.value)
+                    Text(text = name.value,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .weight(1f))
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_close_24),
+                        "Remove",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(24.dp)
+                            .clickable { openDialog.value = true }
+                        ,
+                        contentScale = ContentScale.Crop
+                    )
+                    if (openDialog.value) {
+                        AlertDialog(
+                            onDismissRequest = { openDialog.value = false },
+                            title = {
+                                Text(text = "Remove Friend")
+                            },
+                            text = {
+                                Text(text = "Would you like to remove ${name.value} as a friend?")
+                            },
+                            confirmButton = {
+                                Button(onClick = {
+                                    openDialog.value = false
+                                    it.username?.let { un ->
+                                        viewModel.fireRepo.removeFriendship(userState.value?.username!!, un)
+                                    }
+                                }) {
+                                    Text(text = "Remove Friend")
+                                }
+                            },
+                            dismissButton = {
+                                Button(onClick = {
+                                    openDialog.value = false
+                                }) {
+                                    Text(text = "Cancel")
+                                }
+                            }
+                        )
+                    }
                 }
             })
         }
     }
 
 }
-
-fun List<Friend>?.getFriends(type: FirebaseHelper.FriendState): List<Friend> {
-    if (this == null) return emptyList()
-    return this.filter { it.friend_status == type.name }
-}
-

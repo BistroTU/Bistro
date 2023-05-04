@@ -32,7 +32,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
     val context = LocalContext.current
 
     val state = signUpViewModel.signUpState.collectAsState(initial = null)
-    val user = bistroViewModel.currentUser.collectAsState()
+    val user = bistroViewModel.authUser.collectAsState()
 
     Column(
         modifier = Modifier

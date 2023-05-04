@@ -8,7 +8,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Network
-import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.Log
@@ -16,9 +15,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import androidx.core.content.ContextCompat.checkSelfPermission
 import dagger.hilt.android.AndroidEntryPoint
 import edu.temple.bistro.ui.navigation.*
@@ -28,7 +24,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -74,7 +69,7 @@ class MainActivity : ComponentActivity() {
                         NavigationItem.SettingsScreen
                     )
 
-                    val user = viewModel.currentUser.collectAsState()
+                    val user = viewModel.authUser.collectAsState()
                     var startScreen = NavigationItem.SignUpScreen.route
 
                     if (user.value != null) {
