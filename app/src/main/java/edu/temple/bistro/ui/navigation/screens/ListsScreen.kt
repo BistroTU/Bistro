@@ -15,10 +15,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import edu.temple.bistro.Place
+import edu.temple.bistro.data.firebase.FirebasePlace
 
 @Composable
-fun PlacesScreen(title: String, places: List<Place>) {
+fun PlacesScreen(title: String, places: List<FirebasePlace>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,7 +33,7 @@ fun PlacesScreen(title: String, places: List<Place>) {
         Column(modifier = Modifier.padding(start = 8.dp)) {
             places.forEach { place ->
                 Text(
-                    text = place.name,
+                    text = place.name!!,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -46,5 +46,5 @@ fun PlacesScreen(title: String, places: List<Place>) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    PlacesScreen("Liked Places",listOf(Place("Mission Taqueria",1),Place("Morimoto",2), Place("Charlie was a sinner.",1), Place("Sampan",2)))
+    PlacesScreen("Liked Places",listOf(FirebasePlace("1", "Mission Taqueria"),FirebasePlace("2", "Morimoto"), FirebasePlace("3", "Charlie was a sinner."), FirebasePlace("2","Sampan")))
 }
