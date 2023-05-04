@@ -1,5 +1,6 @@
 package edu.temple.bistro.data.api
 
+import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import edu.temple.bistro.data.model.Category
@@ -24,6 +25,7 @@ class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
 
     private val categorySet = mutableSetOf<Category>()
     private val priceSet = mutableSetOf<Int>()
+    private val radius = mutableStateOf(8046)
     private val successCallbacks = mutableListOf<(Response<RestaurantSearchResponse>) -> Unit>()
     private val failureCallbacks = mutableListOf<(Throwable) -> Unit>()
 
@@ -40,7 +42,10 @@ class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
     }
 
     fun setRadius(value: Int) = apply {
-        optionsMap["radius"] = value.toString()
+        radius.value = value
+    }
+    fun getRadius(): Int {
+        return radius.value
     }
 
     fun addCategory(value: Category) = apply {
@@ -49,6 +54,10 @@ class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
 
     fun addCategories(value: Collection<Category>) = apply {
         categorySet.addAll(value)
+    }
+
+    fun getCategories(): Set<Category> {
+        return categorySet.toSet()
     }
 
     fun addPrice(value: Int) = apply {
@@ -67,6 +76,10 @@ class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
 
     fun addPricesStr(value: Collection<String>) = apply {
         addPrices(value.map { it.length })
+    }
+
+    fun getPrices(): Set<String> {
+        return priceSet.map { price -> "$".repeat(price)}.toSet()
     }
 
     fun setOpenNow(value: Boolean) = apply {
@@ -96,6 +109,7 @@ class RestaurantSearchBuilder(builder: RestaurantSearchBuilder? = null) {
     suspend fun call(yelpService: YelpService) {
         if (categorySet.size > 0) optionsMap["categories"] = categorySet.joinToString { it.alias }
         if (priceSet.size > 0) optionsMap["price"] = priceSet.joinToString()
+        optionsMap["radius"] = radius.value.toString()
         withContext(Dispatchers.IO) {
             yelpService.searchRestaurants(optionsMap)
                 .enqueue(object : Callback<RestaurantSearchResponse> {
