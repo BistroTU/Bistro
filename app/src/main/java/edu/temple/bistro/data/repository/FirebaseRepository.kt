@@ -9,7 +9,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import edu.temple.bistro.data.firebase.FirebaseFriend
 import edu.temple.bistro.data.firebase.FirebaseGroup
+import edu.temple.bistro.data.firebase.FirebasePlace
 import edu.temple.bistro.data.firebase.FirebaseUser
+import edu.temple.bistro.data.model.Restaurant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,13 +46,18 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
                         friend.username?.let { registerUser(it, false) }
                     }
                 }
+                if (user?.groups != null && recurse) {
+                    for (group in user.groups!!) {
+                        registerGroup(group)
+                    }
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.d("FR: registerUser", "onCancelled", error.toException())
             }
 
-        });
+        })
     }
 
     fun registerGroup(groupID: String) {
@@ -146,6 +153,41 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         ))
     }
 
+    fun addLikedPlace(user: FirebaseUser, restaurant: Restaurant) {
+        val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis())
+        if (user.liked_categories == null) {
+            user.liked_categories = restaurant.categories.map { it.alias }.toMutableList()
+        }
+        else {
+            val set = user.liked_categories!!.toMutableSet().apply{
+                addAll(restaurant.categories.map { it.alias })
+            }
+            user.liked_categories = set.toMutableList()
+        }
+        if (user.liked_places == null) {
+            user.liked_places = mutableMapOf(
+                Pair(restaurant.id, place)
+            )
+        }
+        else {
+            user.liked_places!![restaurant.id] = place
+        }
+        updateUser(user)
+    }
+
+    fun addDislikedPlace(user: FirebaseUser, restaurant: Restaurant) {
+        val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis())
+        if (user.disliked_places == null) {
+            user.disliked_places = mutableMapOf(
+                Pair(restaurant.id, place)
+            )
+        }
+        else {
+            user.disliked_places!![restaurant.id] = place
+        }
+        updateUser(user)
+    }
+
     fun createGroup(user: FirebaseUser) {
         val groupID = generateGroupID()
         db.getReference("").updateChildren(mapOf(
@@ -159,10 +201,12 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         val group = if (groups.containsKey(groupID)) {
             groups[groupID]!!.value
         } else {
+            registerGroup(groupID)
             getGroupBlocking(groupID)
         }
         if (group == null) {
             Toast.makeText(context, "Invalid Group", Toast.LENGTH_SHORT).show()
+            return
         }
         else {
             if (group.members == null) {
@@ -172,7 +216,37 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
                 group.members!!.add(user.username!!)
             }
         }
+        db.getReference("").updateChildren(mapOf(
+            "/users/${keyStr(user.username!!)}/groups/$groupID" to true,
+            "/groups/$groupID" to group.toMap()
+        ))
     }
+
+    fun leaveGroup(user: FirebaseUser, groupID: String) {
+        val group = if (groups.containsKey(groupID)) {
+            groups[groupID]!!.value
+        } else {
+            registerGroup(groupID)
+            getGroupBlocking(groupID)
+        }
+        if (group == null) {
+            Toast.makeText(context, "Invalid Group", Toast.LENGTH_SHORT).show()
+            return
+        }
+        else {
+            if (group.members == null) {
+                group.members = mutableListOf(user.username!!)
+            }
+            else {
+                group.members!!.add(user.username!!)
+            }
+        }
+        db.getReference("").updateChildren(mapOf(
+            "/users/${keyStr(user.username!!)}/groups/$groupID" to true,
+            "/groups/$groupID" to group.toMap()
+        ))
+    }
+
 
     private fun generateGroupID(): String {
         val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
