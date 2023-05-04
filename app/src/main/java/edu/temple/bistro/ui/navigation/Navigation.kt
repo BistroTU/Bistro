@@ -11,10 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 //import edu.temple.Screen
 import edu.temple.bistro.ui.BistroViewModel
-import edu.temple.bistro.ui.navigation.screens.FriendsScreen
-import edu.temple.bistro.ui.navigation.screens.HomeScreen
-import edu.temple.bistro.ui.navigation.screens.SignInScreen
-import edu.temple.bistro.ui.navigation.screens.SignUpScreen
+import edu.temple.bistro.ui.navigation.screens.*
 
 @Composable
 fun Navigation(navController: NavHostController, startScreen: String, viewModel: BistroViewModel, innerPadding: PaddingValues) {
@@ -25,7 +22,7 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
         composable(
             route = NavigationItem.SettingsScreen.route,
         ) {
-            SettingsScreen()
+            SettingsScreen(navController)
         }
         composable(
             route = NavigationItem.SignUpScreen.route,
@@ -53,13 +50,5 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
 //        ) {
 //            SettingsScreen(name = it.arguments?.getString("name"))
 //        }
-    }
-}
-
-@Composable
-fun SettingsScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize()) {
-        Text(text = "Hello")
     }
 }

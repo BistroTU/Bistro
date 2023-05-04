@@ -35,6 +35,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
     val user = bistroViewModel.authUser.collectAsState()
 
     Column(
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
             .padding(start = 30.dp, end = 30.dp),

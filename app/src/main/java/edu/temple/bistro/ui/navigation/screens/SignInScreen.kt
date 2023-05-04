@@ -28,6 +28,7 @@ fun SignInScreen(navController: NavHostController, bistroViewModel: BistroViewMo
     val state = signInViewModel.signInState.collectAsState(initial = null)
 
     Column(
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
             .padding(start = 30.dp, end = 30.dp),
