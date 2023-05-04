@@ -1,6 +1,7 @@
 package edu.temple.bistro.ui.navigation.screens
 
 import android.widget.Toast
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -13,13 +14,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
 import edu.temple.bistro.ui.signup.SignUpViewModel
+import edu.temple.bistro.ui.theme.Inter
 
 @Composable
 fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewModel, signUpViewModel: SignUpViewModel = hiltViewModel()) {
@@ -35,10 +40,12 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
     val user = bistroViewModel.authUser.collectAsState()
 
     Column(
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
             .padding(start = 30.dp, end = 30.dp),
     ) {
+        Text(text =  "Bistro", fontSize = 30.sp, fontFamily = Inter, fontWeight = FontWeight.Bold, modifier = Modifier.padding(0.dp,0.dp,0.dp,50.dp).fillMaxWidth(), textAlign = TextAlign.Center)
         TextField(modifier = Modifier.fillMaxWidth(), value = firstName, onValueChange = { firstName = it }, placeholder = { Text(text = "First Name") })
         TextField(modifier = Modifier.fillMaxWidth(), value = lastName, onValueChange = { lastName = it }, placeholder = { Text(text = "Last Name") })
         TextField(modifier = Modifier.fillMaxWidth(), value = email, onValueChange = { email = it }, placeholder = { Text(text = "Email") })
@@ -50,7 +57,7 @@ fun SignUpScreen(navController: NavHostController, bistroViewModel: BistroViewMo
                     signUpViewModel.signUpUser(firstName, lastName, email, password, bistroViewModel)
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(0.dp,25.dp,0.dp,0.dp)
         ) {
             Text(
                 modifier = Modifier.padding(7.dp),
