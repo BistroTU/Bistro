@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -88,6 +90,65 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                             contentScale = ContentScale.Crop
                         )
                     }
+                    if (expanded.value) {
+                        Column( modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp) ) {
+                            for (friend in friendsState.value.getFriends(FirebaseHelper.FriendState.PENDING_RECEIVED)) {
+                                val name = remember {mutableStateOf("")}
+                                val openDialog = remember { mutableStateOf(false) }
+                                viewModel.firebase.getName(friend.username) {uname ->
+                                    Log.d("Friends", "NewName $uname")
+                                    if (uname == null) return@getName
+                                    name.value = uname
+                                }
+                                Row (modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    ProfilePicture(imageId = R.drawable.dominos)
+                                    Text(text = name.value,
+                                        modifier = Modifier
+                                            .padding(4.dp)
+                                            .weight(1f))
+                                    Image(
+                                        painter = painterResource(id = R.drawable.baseline_add_24),
+                                        "Add",
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .size(24.dp)
+                                            .clickable { openDialog.value = true }
+                                        ,
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                if (openDialog.value) {
+                                    AlertDialog(
+                                        onDismissRequest = { openDialog.value = false },
+                                        title = {
+                                            Text(text = "Add Friend")
+                                        },
+                                        text = {
+                                            Text(text = "Would you like to add ${name.value} as a friend?")
+                                        },
+                                        confirmButton = {
+                                            Button(onClick = {
+                                                openDialog.value = false
+                                                viewModel.firebase.addFriend(viewModel.currentUser.value!!.email!!, friend)
+                                            }) {
+                                                Text(text = "Add Friend")
+                                            }
+                                        },
+                                        dismissButton = {
+                                            Button(onClick = {
+                                                openDialog.value = false
+                                            }) {
+                                                Text(text = "Cancel")
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -98,7 +159,8 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                     if (uname == null) return@getName
                     name.value = uname
                 }
-                Row {
+                Row (modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically) {
                     ProfilePicture(imageId = R.drawable.dominos)
                     Text(text = name.value)
                 }

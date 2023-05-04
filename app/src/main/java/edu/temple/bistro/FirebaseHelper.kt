@@ -16,9 +16,7 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
     }
 
     fun keyStr(email: String): String {
-        val key = email.replace('.', '_')
-        Log.d("KEYSTR", "$email | $key")
-        return key
+        return email.replace('.', '_')
     }
     fun addUser(username: String, firstName: String, lastName: String) {
         val userRef = db.reference.child("users").child(keyStr(username))
@@ -108,22 +106,19 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
         var userHasFriend = false
         var friendHasUser = false
 
-        runBlocking {
-            checkFriendsList(username, friend.username) { result ->
-                userHasFriend = result
-            }
+        checkFriendsList(username, friend.username) { result ->
+            userHasFriend = result
 
-            checkFriendsList(friend.username, username) { result ->
-                friendHasUser = result
+            checkFriendsList(friend.username, username) { result2 ->
+                friendHasUser = result2
+                if(!userHasFriend && !friendHasUser) {
+                    userNewFriendRef.setValue(Friend(friend.username, FriendState.PENDING_SENT.name))
+                    friendNewFriendRef.setValue(Friend(username, FriendState.PENDING_RECEIVED.name))
+                } else {
+                    userNewFriendRef.setValue(Friend(friend.username, FriendState.ACTIVE.name))
+                    friendNewFriendRef.setValue(Friend(username, FriendState.ACTIVE.name))
+                }
             }
-        }
-
-        if(!userHasFriend && !friendHasUser) {
-            userNewFriendRef.setValue(Friend(friend.username, FriendState.PENDING_SENT.name))
-            friendNewFriendRef.setValue(Friend(username, FriendState.PENDING_RECEIVED.name))
-        } else {
-            userNewFriendRef.setValue(Friend(friend.username, FriendState.ACTIVE.name))
-            friendNewFriendRef.setValue(Friend(username, FriendState.ACTIVE.name))
         }
 
     }
@@ -417,13 +412,14 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
     private fun checkFriendsList(username: String, searchUsername: String, callback: (Boolean) -> Unit) {
         val userRef = db.getReference("users").child(keyStr(username))
         val friendsRef = userRef.child("friends")
+        val keyName = keyStr(searchUsername)
 
         friendsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var usernameFound = false
                 for (friendSnapshot in snapshot.children) {
                     val friend = friendSnapshot.key
-                    if (friend == searchUsername) {
+                    if (friend == keyName) {
                         usernameFound = true
                         break
                     }
