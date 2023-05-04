@@ -425,7 +425,8 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                 Text(text = "Members", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
                 LazyColumn {
                     items(items = group.value?.members ?: listOf()) { member ->
-                        Text(text = member, style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                        val memberData = viewModel.fireRepo.getUserFlow(member).value
+                        Text(text = "${memberData?.first_name} ${memberData?.last_name} - $member", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
                     }
                 }
 
