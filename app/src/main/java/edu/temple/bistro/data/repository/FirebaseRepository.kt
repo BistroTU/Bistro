@@ -61,6 +61,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
     }
 
     fun registerGroup(groupID: String) {
+        Log.d("TR: regGroup", groupID)
         if (!groups.containsKey(groupID)) {
             groups[groupID] = MutableStateFlow(null)
         }
@@ -109,7 +110,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
 
     fun getGroupBlocking(groupID: String): FirebaseGroup? {
         return runBlocking {
-            return@runBlocking db.getReference("groups").child(groupID).get().await()
+            db.getReference("groups").child(groupID).get().await()
                 .getValue(FirebaseGroup::class.java)
         }
     }
