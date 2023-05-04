@@ -1,23 +1,20 @@
 package edu.temple.bistro.ui.navigation
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 //import edu.temple.Screen
 import edu.temple.bistro.ui.BistroViewModel
-import edu.temple.bistro.ui.navigation.screens.FriendsScreen
-import edu.temple.bistro.ui.navigation.screens.HomeScreen
-import edu.temple.bistro.ui.navigation.screens.PlacesScreen
-import edu.temple.bistro.ui.navigation.screens.SettingsScreen
-import edu.temple.bistro.ui.navigation.screens.SignInScreen
-import edu.temple.bistro.ui.navigation.screens.SignUpScreen
+import edu.temple.bistro.ui.navigation.screens.*
+import edu.temple.bistro.ui.theme.Inter
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -47,7 +44,25 @@ fun Navigation(navController: NavHostController, startScreen: String, viewModel:
             FriendsScreen(navController, viewModel)
         }
         composable(route = NavigationItem.LikedPlacesScreen.route) {
-            viewModel.fireRepo.getUserFlow(viewModel.firebaseUser.value!!.username!!).value?.liked_places?.values?.let { it1 -> PlacesScreen(title = "Liked Places", places = it1.toList()) }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    text = "Liked Places",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    fontFamily = Inter,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                viewModel.fireRepo.getUserFlow(viewModel.firebaseUser.value!!.username!!).value?.liked_places?.values?.let { it1 ->
+                    PlacesScreen(
+                        title = "Liked Places",
+                        places = it1.toList()
+                    )
+                }
+            }
         }
 //        composable(
 //            route = NavigationItem.SettingsScreen.route + "/{name}",
