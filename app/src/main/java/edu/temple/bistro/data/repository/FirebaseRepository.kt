@@ -257,6 +257,35 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         db.getReference("").updateChildren(updatedValues)
     }
 
+    fun getCommonCategories(usernames: List<String>): List<String> {
+        val users = usernames.map { users[it]?.value }
+        var categories = setOf<String>()
+
+        users.forEach {
+            if (it?.liked_categories == null) return@forEach
+            categories = if (categories.isEmpty()) categories.union(it.liked_categories!!)
+            else categories.intersect(it.liked_categories!!.toSet())
+        }
+
+        return categories.toList()
+    }
+
+    fun getCommonPlaces(usernames: List<String>): MutableMap<String, FirebasePlace> {
+        val users = usernames.map { users[it]?.value }
+        var placeSet = setOf<String>()
+        val places = mutableMapOf<String, FirebasePlace>()
+
+        users.forEach {
+            if (it?.liked_places == null) return@forEach
+            placeSet = if (placeSet.isEmpty()) placeSet.union(it.liked_places!!.keys)
+            else placeSet.intersect(it.liked_places!!.keys)
+            it.liked_places!!.forEach { (id, place) ->
+                if (placeSet.contains(id)) places[id] = place
+            }
+        }
+        return places
+    }
+
 
     private fun generateGroupID(): String {
         val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
