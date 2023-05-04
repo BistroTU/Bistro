@@ -430,7 +430,7 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                 }
 
                 Text(text = "Overlapping Restaurants", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
-                LazyColumn {
+                LazyColumn(modifier = Modifier.fillMaxHeight(2/5f)) {
                     items(items = places?.values?.toList() ?: listOf()) { restaurant ->
                         Text(text = restaurant.name!!, style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
                     }
