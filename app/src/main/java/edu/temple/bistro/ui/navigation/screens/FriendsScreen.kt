@@ -411,26 +411,29 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
+                val group = viewModel.fireRepo.getGroupFlow(selectedGroup.value).collectAsState()
+                val places = group.value?.members?.let { viewModel.fireRepo.getCommonPlaces(it) }
+                val categories = group.value?.members?.let {viewModel.fireRepo.getCommonCategories(it)}
                 Text(text = selectedGroup.value, style = MaterialTheme.typography.h4, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
 
                 Text(text = "Members", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
                 LazyColumn {
-                    items(7) { member ->
-                        Text(text = "username", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                    items(items = group.value?.members ?: listOf()) { member ->
+                        Text(text = member, style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
                     }
                 }
 
                 Text(text = "Overlapping Restaurants", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
                 LazyColumn {
-                    items(7) { restaurant ->
-                        Text(text = "restaurant name", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                    items(items = places?.values?.toList() ?: listOf()) { restaurant ->
+                        Text(text = restaurant.name!!, style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
                     }
                 }
 
                 Text(text = "Overlapping Categories", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp))
                 LazyColumn {
-                    items(7) { category ->
-                        Text(text = "category name", style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
+                    items(items = categories ?: listOf()) { category ->
+                        Text(text = category.title!!, style = MaterialTheme.typography.body1, modifier = Modifier.padding(start = 16.dp))
                     }
                 }
             }
