@@ -81,9 +81,6 @@ class MainActivity : ComponentActivity() {
 
             BistroTheme {
                 Scaffold(
-                    topBar = {
-                      HomeTopBar(viewModel = viewModel)
-                    },
                     bottomBar = {
                         BottomNavbar(navController = navController, items = bottomNavigationItems)
                     },
