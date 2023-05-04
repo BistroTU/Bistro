@@ -24,29 +24,18 @@ import edu.temple.bistro.data.firebase.FirebasePlace
 @Composable
 fun PlacesScreen(title: String, places: List<FirebasePlace>) {
     val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-    ) {
-        Text(
-            text = title,
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
-        LazyColumn(modifier = Modifier.fillMaxWidth()
-            .padding(horizontal = 16.dp)) {
-            items(places) {
-                Text(
-                    text = it.name!!,
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                        .clickable {
-                            it.url?.let { url -> context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                        }
-                )
-            }
+
+    LazyColumn(modifier = Modifier.fillMaxWidth()
+        .padding(horizontal = 16.dp)) {
+        items(places) {
+            Text(
+                text = it.name!!,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(vertical = 4.dp)
+                    .clickable {
+                        it.url?.let { url -> context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                    }
+            )
         }
     }
 }
