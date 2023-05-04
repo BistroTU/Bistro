@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -35,6 +36,7 @@ import edu.temple.bistro.data.repository.FirebaseRepository
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.friends.ProfilePicture
 import edu.temple.bistro.ui.theme.Inter
+import java.util.Locale
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -88,6 +90,7 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                         Button(onClick = {
                             addFriend.value = false
                             viewModel.fireRepo.addFriendship(userState.value!!.username!!, friendEmail)
+                            friendEmail = ""
                         }) {
                             Text(text = "Add Friend")
                         }
@@ -293,7 +296,8 @@ fun FriendsScreen(navController: NavController?, viewModel: BistroViewModel) {
                     confirmButton = {
                         Button(onClick = {
                             joinGroup.value = false
-                            viewModel.fireRepo.joinGroup(userState.value!!, groupID)
+                            viewModel.fireRepo.joinGroup(userState.value!!, groupID.uppercase())
+                            groupID = ""
                         }) {
                             Text(text = "Join Group")
                         }
