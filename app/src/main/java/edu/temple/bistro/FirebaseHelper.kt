@@ -422,8 +422,8 @@ class FirebaseHelper(private val db: FirebaseDatabase) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var usernameFound = false
                 for (friendSnapshot in snapshot.children) {
-                    val friend = friendSnapshot.getValue(Friend::class.java)
-                    if (friend?.username == searchUsername) {
+                    val friend = friendSnapshot.key
+                    if (friend == searchUsername) {
                         usernameFound = true
                         break
                     }
