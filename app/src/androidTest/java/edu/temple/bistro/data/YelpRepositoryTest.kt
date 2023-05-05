@@ -5,7 +5,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import edu.temple.bistro.data.api.RestaurantSearchBuilder
-import edu.temple.bistro.data.model.Category
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -15,7 +14,6 @@ import org.junit.After
 import org.junit.Assert.*
 
 import org.junit.Before
-import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
