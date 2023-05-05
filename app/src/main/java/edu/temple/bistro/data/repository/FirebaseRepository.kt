@@ -34,6 +34,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         }
     }
 
+    //registers a user with firebase
     fun registerUser(username: String, recurse: Boolean = true) {
         if (!users.containsKey(username)) {
             users[username] = MutableStateFlow(null)
@@ -61,6 +62,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         })
     }
 
+    //adds a group to Firebase
     fun registerGroup(groupID: String) {
         Log.d("TR: regGroup", groupID)
         if (!groups.containsKey(groupID)) {
@@ -84,6 +86,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         });
     }
 
+    //returns StateFlow for a Firebase User
     fun getUserFlow(username: String): StateFlow<FirebaseUser?> {
         return if (users.containsKey(username)) {
             users[username]!!.asStateFlow()
@@ -93,6 +96,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         }
     }
 
+    //returns a FirebaseUser
     fun getUserBlocking(username: String): FirebaseUser? {
         return runBlocking {
             return@runBlocking db.getReference("users").child(keyStr(username)).get().await()
@@ -100,6 +104,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         }
     }
 
+    //returns FirebaseGroup Stateflow
     fun getGroupFlow(groupID: String): StateFlow<FirebaseGroup?> {
         return if (groups.containsKey(groupID)) {
             groups[groupID]!!.asStateFlow()
@@ -109,6 +114,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         }
     }
 
+    //returns a FirebaseGroup
     fun getGroupBlocking(groupID: String): FirebaseGroup? {
         return runBlocking {
             db.getReference("groups").child(groupID).get().await()
@@ -116,10 +122,12 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         }
     }
 
+    //updates a FirebaseUser
     fun updateUser(user: FirebaseUser) {
         db.getReference("users").child(keyStr(user.username!!)).updateChildren(user.toMap())
     }
 
+    //removed a Friendship between two FirebaseUsers
     fun removeFriendship(user1: String, user2: String) {
         val key1 = keyStr(user1)
         val key2 = keyStr(user2)
@@ -129,6 +137,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         ))
     }
 
+    //adds a friendship between two firebase users
     fun addFriendship(sender: String, recipient: String) {
         val sendKey = keyStr(sender)
         val recvKey = keyStr(recipient)
@@ -153,6 +162,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         db.getReference("users").updateChildren(updateValues)
     }
 
+    //adds a user to firebase
     fun addUser(username: String, firstName: String, lastName: String) {
         val user = FirebaseUser(username = username, first_name = firstName, last_name = lastName)
         db.getReference("users").updateChildren(mapOf(
@@ -160,6 +170,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         ))
     }
 
+    //adds a place to a users liked places list in firebase
     fun addLikedPlace(user: FirebaseUser, restaurant: Restaurant) {
         val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis(), restaurant.url)
         if (user.liked_categories == null) {
@@ -183,6 +194,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         updateUser(user)
     }
 
+    //adds a place to a users disliked places list in firebase
     fun addDislikedPlace(user: FirebaseUser, restaurant: Restaurant) {
         val place = FirebasePlace(restaurant.id, restaurant.name, System.currentTimeMillis(), restaurant.url)
         if (user.disliked_places == null) {
@@ -196,6 +208,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         updateUser(user)
     }
 
+    //creates a group in Firebase
     fun createGroup(user: FirebaseUser) {
         val groupID = generateGroupID()
         db.getReference("").updateChildren(mapOf(
@@ -205,6 +218,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         registerGroup(groupID)
     }
 
+    //allows a user to join a group in Firebase
     fun joinGroup(user: FirebaseUser, groupID: String) {
         val group = if (groups.containsKey(groupID)) {
             groups[groupID]!!.value
@@ -228,6 +242,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         ))
     }
 
+    //allows a user to leave a group in Firebase
     fun leaveGroup(user: FirebaseUser, groupID: String) {
         val group = groups[groupID]?.value
         if (group == null) {
@@ -243,6 +258,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         ))
     }
 
+    //deletes a group from Firebase
     fun deleteGroup(groupID: String) {
         val group = groups[groupID]?.value
         if (group == null) {
@@ -259,6 +275,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         db.getReference("").updateChildren(updatedValues)
     }
 
+    //returns the common liked categories between two users
     fun getCommonCategories(usernames: List<String>): List<FirebaseCategory> {
         val users = usernames.map { users[it]?.value }
         var categories = setOf<FirebaseCategory>()
@@ -272,6 +289,7 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         return categories.toList()
     }
 
+    //returns the common liked places between two users
     fun getCommonPlaces(usernames: List<String>): MutableMap<String, FirebasePlace> {
         val users = usernames.map { users[it]?.value }
         var placeSet = setOf<String>()
@@ -288,8 +306,8 @@ class FirebaseRepository(private val db: FirebaseDatabase, private val context: 
         return places
     }
 
-
-    private fun generateGroupID(): String {
+    //generates a random group id
+    fun generateGroupID(): String {
         val alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ"
         val rand = Random(System.currentTimeMillis())
         val randomLetter = alphabet[rand.nextInt(0,alphabet.length)]
