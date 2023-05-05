@@ -4,7 +4,6 @@
       "first_name": "string",
       "last_name": "string",
       "username": "string",
-      "idToken": "string",
       "age_over_21": "boolean",
       "profile_picture": "string",
       "friends": {
@@ -14,7 +13,6 @@
         }
       },
       "filter_criteria": {
-        "min_rating": "number",
         "price_level": "number",
         "max_distance": "number",
         "categories": {
@@ -23,14 +21,18 @@
       },
       "liked_places": {
         "$place_id": {
+          "id": "string",
           "name": "string",
           "timestamp": "number"
+          "url": "string",
         }
       },
       "disliked_places": {
         "$place_id": {
+          "id": "string",
           "name": "string",
           "timestamp": "number"
+          "url": "string",
         }
       }
       "groups": {
@@ -42,7 +44,7 @@
 {
  "groups": {
    "@gid": {
-     "usernames": "list"
+     "members": "list"
     }
   }
 }
