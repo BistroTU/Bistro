@@ -31,6 +31,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexstyl.swipeablecard.Direction
@@ -116,7 +118,8 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
                                 }
                             },
                             icon = Icons.Filled.Close,
-                            iconColor = Color(0xFFDA5D5D)
+                            iconColor = Color(0xFFDA5D5D),
+                            buttonContentDescription = "Dislike this place"
                         )
 
                         // Check Button
@@ -132,7 +135,8 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
                                 }
                             },
                             icon = Icons.Filled.Check,
-                            iconColor = Color(0xFF5ABA4A)
+                            iconColor = Color(0xFF5ABA4A),
+                            buttonContentDescription = "Like this place"
                         )
 
                         // Refresh Button
@@ -141,7 +145,8 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
                                 viewModel.yelpRepository.fetchRestaurants()
                             },
                             icon = Icons.Rounded.Refresh,
-                            iconColor = Color.Gray
+                            iconColor = Color.Gray,
+                            buttonContentDescription = "Refresh places"
                         )
                     }
                 }
@@ -164,14 +169,16 @@ fun HomeScreen(navController: NavController, viewModel: BistroViewModel, innerPa
 private fun CircleButton(
     onClick: () -> Unit,
     icon: ImageVector,
-    iconColor: Color
+    iconColor: Color,
+    buttonContentDescription: String
 ) {
     IconButton(
         modifier = Modifier
             .clip(CircleShape)
             .background(Color.White)
             .size(88.dp)
-            .border(2.dp, Color.hsv(0f, 0f, 0.95f, 1f), CircleShape),
+            .border(2.dp, Color.hsv(0f, 0f, 0.95f, 1f), CircleShape)
+            .semantics { contentDescription = buttonContentDescription },
         onClick = onClick
     ) {
         Icon(icon, null,
@@ -182,5 +189,5 @@ private fun CircleButton(
 @Composable
 @Preview
 fun CircleButtonPreview() {
-    CircleButton(onClick = { /*TODO*/ }, icon = Icons.Filled.Close, iconColor = Color.Red)
+    CircleButton(onClick = { /*TODO*/ }, icon = Icons.Filled.Close, iconColor = Color.Red, "Button preview")
 }

@@ -56,6 +56,10 @@ android {
 }
 
 dependencies {
+    // Test rules and transitive dependencies:
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$compose_ui_version")
+    // Needed for createAndroidComposeRule, but not createComposeRule:
+    debugImplementation("androidx.compose.ui:ui-test-manifest:$compose_ui_version")
 
     implementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     // Flow Row

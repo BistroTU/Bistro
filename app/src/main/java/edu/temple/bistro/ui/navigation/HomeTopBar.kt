@@ -16,6 +16,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +42,11 @@ fun HomeTopBar(viewModel: BistroViewModel, isFilterMenuOpen: MutableState<Boolea
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-            Icon(Icons.Filled.FilterAlt, "filter", tint = iconTint, modifier = Modifier.clickable { isFilterMenuOpen.value = !isFilterMenuOpen.value })
+            Icon(
+                Icons.Filled.FilterAlt,
+                "Open filter menu",
+                tint = iconTint,
+                modifier = Modifier.clickable { isFilterMenuOpen.value = !isFilterMenuOpen.value })
         }
     }
 }
