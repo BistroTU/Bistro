@@ -5,9 +5,11 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.firebase.database.FirebaseDatabase
 import edu.temple.bistro.data.firebase.*
 import edu.temple.bistro.data.repository.FirebaseRepository
+import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import kotlin.reflect.typeOf
 
 class FirebaseRepositoryTest {
 
@@ -48,11 +50,45 @@ class FirebaseRepositoryTest {
     }
 
     @Test
+    fun testRegisterUser() {
+        firebaseDatabase.reference.setValue(null)
+        firebaseRepository.registerUser("test")
+        assertTrue(firebaseDatabase.getReference("users").key != null)
+    }
+
+    @Test
+    fun testAddUser() {
+        firebaseDatabase.reference.setValue(null)
+        firebaseRepository.addUser("test", "john", "doe")
+        assertTrue(firebaseDatabase.getReference("users").key != null)
+    }
+
+    @Test
     fun testCreateGroup() {
         firebaseDatabase.reference.setValue(null)
         firebaseRepository.createGroup(user1)
         assertTrue(firebaseDatabase.getReference("groups").key != null)
     }
+
+    @Test
+    fun testGroupFlow() {
+        firebaseDatabase.getReference("").updateChildren(mapOf(
+            "/users/${FirebaseRepository.keyStr(user1.username!!)}/groups/ABC" to true,
+            "/groups/ABC" to FirebaseGroup(id="ABC", members = mutableListOf(user1.username!!)).toMap()
+        ))
+        assertTrue(firebaseDatabase.getReference("/groups/ABC").key != null)
+        assertTrue(firebaseRepository.getGroupFlow("ABC").toString() != "")
+    }
+
+    @Test
+    fun testUserFlow() {
+        firebaseDatabase.getReference("").updateChildren(mapOf(
+            "/users/${FirebaseRepository.keyStr(user1.username!!)}" to true
+        ))
+        assertTrue(firebaseDatabase.getReference("/users/${FirebaseRepository.keyStr(user1.username!!)}").key != null)
+        assertTrue(firebaseRepository.getUserFlow(FirebaseRepository.keyStr(user1.username!!)).toString() != "")
+    }
+
 
     @Test
     fun testGetCommonCategories() {

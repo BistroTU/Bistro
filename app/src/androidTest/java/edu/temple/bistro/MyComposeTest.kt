@@ -15,8 +15,8 @@ class MyComposeTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
     // use createAndroidComposeRule<YourActivity>() if you need access to
     // an activity
-    val email = "${(Math.random()*100).toInt().toString()}@bistro.gg"
-    val password = "password1234"
+    private val email = "${(Math.random()*100).toInt()}@bistro.gg"
+    private val password = "password1234"
 
     @Test
     fun signUpFlowTest() {
