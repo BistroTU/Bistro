@@ -54,8 +54,6 @@ fun FilterMenu(bistroViewModel: BistroViewModel) {
     val selectedPriceRanges = rememberSaveable { bistroViewModel.search.value.getPrices().toMutableSet() }
     var searchRadius by rememberSaveable { mutableStateOf(bistroViewModel.search.value.getRadius()*0.000621371f) }
 
-
-
     Column(modifier = Modifier.padding(20.dp)) {
         Title("Categories")
         FlowRow(
@@ -67,7 +65,8 @@ fun FilterMenu(bistroViewModel: BistroViewModel) {
         ) {
             popularCategories.forEach { category ->
                 val selected = remember { mutableStateOf(selectedCategories.contains(category)) }
-                InfoChip(category = category.title, selected = selected.value, onClick = {
+                val chipContentAction = if (selected.value) "Remove ${category} from filters" else "Add ${category} to filters"
+                InfoChip(category = category.title, selected = selected.value, chipContentDescription = chipContentAction, onClick = {
                     selected.value = !selected.value
                     if (selected.value) {
                         selectedCategories.add(category)
@@ -87,14 +86,16 @@ fun FilterMenu(bistroViewModel: BistroViewModel) {
         ) {
             prices.forEach { price ->
                 val selected = remember { mutableStateOf(selectedPriceRanges.contains(price)) }
-                InfoChip(category = price, selected = selected.value, onClick = {
+                val chipContentAction = if (selected.value) "Remove ${price} from filters" else "Add ${price} to filters"
+
+                InfoChip(category = price, selected = selected.value, chipContentDescription = chipContentAction, onClick = {
                     selected.value = !selected.value
                     if (selected.value) {
                         selectedPriceRanges.add(price)
                     } else {
                         selectedPriceRanges.remove(price)
                     }
-                })
+                },)
             }
         }
         Title("Maximum Distance")

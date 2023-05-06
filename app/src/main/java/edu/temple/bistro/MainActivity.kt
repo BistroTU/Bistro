@@ -32,6 +32,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import edu.temple.bistro.ui.BistroViewModel
 import edu.temple.bistro.ui.navigation.NavigationItem
+import edu.temple.bistro.ui.navigation.screens.OfflineScreen
 import java.util.*
 
 @AndroidEntryPoint
@@ -150,57 +151,6 @@ class MainActivity : ComponentActivity() {
                     finish()
                 }
             }
-        }
-    }
-
-    @Composable
-    fun OfflineRedirector(
-        cm: ConnectivityManager,
-        redirectComposable: @Composable () -> Unit,
-        content: @Composable () -> Unit
-    ) {
-        val isOnline = remember { mutableStateOf(false) }
-        LaunchedEffect(cm) {
-            val callback = object : ConnectivityManager.NetworkCallback() {
-                override fun onLost(network: Network) {
-                    isOnline.value = false
-                }
-
-                override fun onUnavailable() {
-                    isOnline.value = false
-                }
-
-                override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
-                    isOnline.value = true
-                }
-
-                override fun onAvailable(network: Network) {
-                    isOnline.value = true
-                }
-            }
-            cm.registerNetworkCallback(NetworkRequest.Builder().build(), callback)
-        }
-        if (isOnline.value || cm.activeNetworkInfo?.isConnected ?: false) {
-            content()
-        } else {
-            redirectComposable()
-        }
-    }
-
-    @Composable
-    fun OfflineScreen() {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Bistro needs internet access to work properly.",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(16.dp)
-            )
         }
     }
 

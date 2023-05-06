@@ -125,9 +125,9 @@ fun RestaurantCard(data: Restaurant, state: SwipeableCardState) {
                     crossAxisSpacing = 6.dp,
                 ) {
                     if (data.price != null) {
-                        InfoChip(data.price.toString(), textColor = MoneyGreen, selected = false, onClick = {})
+                        InfoChip(data.price.toString(), textColor = MoneyGreen, selected = false, onClick = {}, "")
                     }
-                    data.categories.forEach { category -> InfoChip(category.title, selected = false, onClick = {}) }
+                    data.categories.forEach { category -> InfoChip(category.title, selected = false, onClick = {}, chipContentDescription = "")}
                 }
 //                Row(
 //                    horizontalArrangement = Arrangement.spacedBy(7.dp)
