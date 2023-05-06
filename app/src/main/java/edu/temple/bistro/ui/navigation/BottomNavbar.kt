@@ -25,7 +25,7 @@ fun BottomNavbar(navController: NavHostController, items: List<NavigationItem>) 
                 icon = {
                     Icon(
                         screen.icon,
-                        "icon",
+                        "Open ${screen.contentDescription}",
                     )
                },
             )
